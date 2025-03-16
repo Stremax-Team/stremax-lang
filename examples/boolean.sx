@@ -1,0 +1,38 @@
+// Boolean operations example
+let a = 10;
+let b = 5;
+
+// Comparison operators
+let isGreater = a > b;
+let isLess = a < b;
+let isEqual = a == b;
+let isNotEqual = a != b;
+
+// Logical operators (using if statements since we don't have direct boolean literals)
+let andResult = if (a > b) {
+    if (a != 5) {
+        1;  // true AND true = true
+    } else {
+        0;  // true AND false = false
+    }
+} else {
+    0;  // false AND anything = false
+};
+
+let orResult = if (a < b) {
+    1;  // true OR anything = true
+} else {
+    if (a != 5) {
+        1;  // false OR true = true
+    } else {
+        0;  // false OR false = false
+    }
+};
+
+// Print results
+isGreater;    // Should be true (1)
+isLess;       // Should be false (0)
+isEqual;      // Should be false (0)
+isNotEqual;   // Should be true (1)
+andResult;    // Should be 1 (true)
+orResult;     // Should be 1 (true) 

@@ -1,0 +1,126 @@
+// Voting Contract
+contract VotingContract {
+    // State variables
+    state {
+        owner: Address
+        proposals: Map<Int, String>
+        votes: Map<Int, Int>
+        hasVoted: Map<Address, Bool>
+        votersCount: Int
+        proposalsCount: Int
+        votingOpen: Bool
+    }
+
+    // Constructor
+    constructor() {
+        owner = msg.sender;
+        votersCount = 0;
+        proposalsCount = 0;
+        votingOpen = false;
+    }
+
+    // Add a proposal (only owner)
+    function addProposal(description: String): Int {
+        require(msg.sender == owner, "Only owner can add proposals");
+        
+        let proposalId = proposalsCount;
+        proposals[proposalId] = description;
+        votes[proposalId] = 0;
+        proposalsCount += 1;
+        
+        emit ProposalAdded(proposalId, description);
+        
+        return proposalId;
+    }
+
+    // Start voting (only owner)
+    function startVoting(): Bool {
+        require(msg.sender == owner, "Only owner can start voting");
+        require(proposalsCount > 0, "No proposals to vote on");
+        require(!votingOpen, "Voting already started");
+        
+        votingOpen = true;
+        
+        emit VotingStarted();
+        
+        return true;
+    }
+
+    // End voting (only owner)
+    function endVoting(): Bool {
+        require(msg.sender == owner, "Only owner can end voting");
+        require(votingOpen, "Voting not started");
+        
+        votingOpen = false;
+        
+        // Find the winning proposal
+        let winningProposalId = 0;
+        let winningVoteCount = 0;
+        
+        for (let i = 0; i < proposalsCount; i++) {
+            if (votes[i] > winningVoteCount) {
+                winningVoteCount = votes[i];
+                winningProposalId = i;
+            }
+        }
+        
+        emit VotingEnded(winningProposalId, proposals[winningProposalId], winningVoteCount);
+        
+        return true;
+    }
+
+    // Vote for a proposal
+    function vote(proposalId: Int): Bool {
+        require(votingOpen, "Voting not open");
+        require(proposalId >= 0 && proposalId < proposalsCount, "Invalid proposal ID");
+        require(!hasVoted[msg.sender], "Already voted");
+        
+        votes[proposalId] += 1;
+        hasVoted[msg.sender] = true;
+        votersCount += 1;
+        
+        emit Voted(msg.sender, proposalId);
+        
+        return true;
+    }
+
+    // Get proposal details
+    function getProposal(proposalId: Int): String {
+        require(proposalId >= 0 && proposalId < proposalsCount, "Invalid proposal ID");
+        
+        return proposals[proposalId];
+    }
+
+    // Get vote count for a proposal
+    function getVoteCount(proposalId: Int): Int {
+        require(proposalId >= 0 && proposalId < proposalsCount, "Invalid proposal ID");
+        
+        return votes[proposalId];
+    }
+
+    // Get total number of voters
+    function getVotersCount(): Int {
+        return votersCount;
+    }
+
+    // Get total number of proposals
+    function getProposalsCount(): Int {
+        return proposalsCount;
+    }
+
+    // Check if voting is open
+    function isVotingOpen(): Bool {
+        return votingOpen;
+    }
+
+    // Check if an address has voted
+    function hasAddressVoted(voter: Address): Bool {
+        return hasVoted[voter];
+    }
+
+    // Events
+    event ProposalAdded(id: Int, description: String)
+    event VotingStarted()
+    event VotingEnded(winningProposalId: Int, winningProposal: String, winningVoteCount: Int)
+    event Voted(voter: Address, proposalId: Int)
+} 

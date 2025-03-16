@@ -1,0 +1,10 @@
+// Error handling example
+
+// Division by zero
+let a = 10;
+let b = 0;
+let result = a / b;  // Should cause a runtime error
+
+// This code should not be executed
+let c = 5;
+c; 

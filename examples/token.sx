@@ -1,0 +1,121 @@
+// Token Contract
+contract TokenContract {
+    // State variables
+    state {
+        owner: Address
+        totalSupply: Int
+        balances: Map<Address, Int>
+        allowances: Map<Address, Map<Address, Int>>
+        name: String
+        symbol: String
+        decimals: Int
+    }
+
+    // Constructor
+    constructor(name: String, symbol: String, initialSupply: Int) {
+        owner = msg.sender;
+        name = name;
+        symbol = symbol;
+        decimals = 18;
+        totalSupply = initialSupply * 10^decimals;
+        balances[owner] = totalSupply;
+    }
+
+    // Get token name
+    function name(): String {
+        return name;
+    }
+
+    // Get token symbol
+    function symbol(): String {
+        return symbol;
+    }
+
+    // Get token decimals
+    function decimals(): Int {
+        return decimals;
+    }
+
+    // Get total supply
+    function totalSupply(): Int {
+        return totalSupply;
+    }
+
+    // Get balance of an address
+    function balanceOf(account: Address): Int {
+        return balances[account];
+    }
+
+    // Transfer tokens
+    function transfer(to: Address, amount: Int): Bool {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        require(to != Address(0), "Transfer to zero address");
+        
+        balances[msg.sender] -= amount;
+        balances[to] += amount;
+        
+        emit Transfer(msg.sender, to, amount);
+        
+        return true;
+    }
+
+    // Get allowance
+    function allowance(owner: Address, spender: Address): Int {
+        return allowances[owner][spender];
+    }
+
+    // Approve spender
+    function approve(spender: Address, amount: Int): Bool {
+        require(spender != Address(0), "Approve to zero address");
+        
+        allowances[msg.sender][spender] = amount;
+        
+        emit Approval(msg.sender, spender, amount);
+        
+        return true;
+    }
+
+    // Transfer from
+    function transferFrom(from: Address, to: Address, amount: Int): Bool {
+        require(balances[from] >= amount, "Insufficient balance");
+        require(allowances[from][msg.sender] >= amount, "Insufficient allowance");
+        require(to != Address(0), "Transfer to zero address");
+        
+        balances[from] -= amount;
+        balances[to] += amount;
+        allowances[from][msg.sender] -= amount;
+        
+        emit Transfer(from, to, amount);
+        
+        return true;
+    }
+
+    // Mint new tokens (only owner)
+    function mint(to: Address, amount: Int): Bool {
+        require(msg.sender == owner, "Only owner can mint");
+        require(to != Address(0), "Mint to zero address");
+        
+        totalSupply += amount;
+        balances[to] += amount;
+        
+        emit Transfer(Address(0), to, amount);
+        
+        return true;
+    }
+
+    // Burn tokens
+    function burn(amount: Int): Bool {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        
+        balances[msg.sender] -= amount;
+        totalSupply -= amount;
+        
+        emit Transfer(msg.sender, Address(0), amount);
+        
+        return true;
+    }
+
+    // Events
+    event Transfer(from: Address, to: Address, amount: Int)
+    event Approval(owner: Address, spender: Address, amount: Int)
+} 

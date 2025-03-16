@@ -1,0 +1,13 @@
+// Debug example to test interpreter output
+let a = 5;
+let b = 10;
+let c = a + b;
+
+// Print each variable
+a;
+b;
+c;
+
+// Final result
+let result = a * b + c;
+result; 

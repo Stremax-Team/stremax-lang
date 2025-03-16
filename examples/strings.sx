@@ -1,0 +1,9 @@
+// String operations example
+let firstName = "John";
+let lastName = "Doe";
+
+// String concatenation
+let fullName = firstName + " " + lastName;
+
+// Print result
+fullName;  // Should be "John Doe" 

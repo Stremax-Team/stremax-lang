@@ -1,0 +1,25 @@
+// Conditional expressions example
+let x = 10;
+let y = 5;
+
+// If-else expression
+let result = if (x > y) { 
+    x + y; 
+} else { 
+    x - y; 
+};
+
+// Nested if-else
+let nestedResult = if (x > 5) {
+    if (y > 2) {
+        x * y;
+    } else {
+        x / y;
+    }
+} else {
+    x + y;
+};
+
+// Print results
+result;        // Should be 15
+nestedResult;  // Should be 50 

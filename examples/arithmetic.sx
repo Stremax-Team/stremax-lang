@@ -1,0 +1,22 @@
+ // Arithmetic operations example
+let a = 10;
+let b = 5;
+
+// Addition
+let sum = a + b;
+// Subtraction
+let difference = a - b;
+// Multiplication
+let product = a * b;
+// Division
+let quotient = a / b;
+
+// Complex expression
+let complex = (a + b) * (a - b) / 2;
+
+// Print results
+sum;          // Should be 15
+difference;   // Should be 5
+product;      // Should be 50
+quotient;     // Should be 2
+complex;      // Should be 25

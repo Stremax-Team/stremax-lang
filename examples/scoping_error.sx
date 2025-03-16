@@ -1,0 +1,17 @@
+// Variable scoping error example
+let x = 10;
+
+// Block scope
+let result = if (x > 5) {
+    let y = 20;
+    x + y;  // Should be 30
+} else {
+    let z = 30;
+    x + z;  // Should be 40
+};
+
+// Print result
+result;  // Should be 30
+
+// This should cause an error because y is out of scope
+y; 

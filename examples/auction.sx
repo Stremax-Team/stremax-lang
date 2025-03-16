@@ -1,0 +1,104 @@
+// Auction Contract
+contract AuctionContract {
+    // State variables
+    state {
+        owner: Address
+        highestBidder: Address
+        highestBid: Int
+        endTime: Int
+        ended: Bool
+        beneficiary: Address
+        pendingReturns: Map<Address, Int>
+    }
+
+    // Constructor
+    constructor(beneficiaryAddress: Address, biddingTime: Int) {
+        owner = msg.sender;
+        beneficiary = beneficiaryAddress;
+        endTime = now() + biddingTime;
+        highestBidder = Address(0);
+        highestBid = 0;
+        ended = false;
+    }
+
+    // Bid on the auction
+    function bid() {
+        // Check if the auction is still open
+        require(now() <= endTime, "Auction already ended");
+        
+        // Check if the bid is higher than the current highest bid
+        require(msg.value > highestBid, "There already is a higher bid");
+
+        // Return the previous highest bid to the previous highest bidder
+        if (highestBid > 0) {
+            pendingReturns[highestBidder] += highestBid;
+        }
+
+        // Update the highest bid and bidder
+        highestBidder = msg.sender;
+        highestBid = msg.value;
+        
+        emit HighestBidIncreased(msg.sender, msg.value);
+    }
+
+    // Withdraw a previous bid that was overbid
+    function withdraw(): Bool {
+        let amount = pendingReturns[msg.sender];
+        if (amount > 0) {
+            // Set the pending return to 0 before sending to prevent re-entrancy attacks
+            pendingReturns[msg.sender] = 0;
+            
+            // Send the amount back to the bidder
+            if (!msg.sender.send(amount)) {
+                // If the send fails, restore the pending return
+                pendingReturns[msg.sender] = amount;
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // End the auction and send the highest bid to the beneficiary
+    function endAuction() {
+        // Check if the auction has already ended
+        require(!ended, "Auction already ended");
+        
+        // Check if the auction end time has been reached
+        require(now() >= endTime, "Auction not yet ended");
+        
+        // Mark the auction as ended
+        ended = true;
+        
+        // Send the highest bid to the beneficiary
+        beneficiary.transfer(highestBid);
+        
+        emit AuctionEnded(highestBidder, highestBid);
+    }
+
+    // Get the current highest bid
+    function getHighestBid(): Int {
+        return highestBid;
+    }
+
+    // Get the current highest bidder
+    function getHighestBidder(): Address {
+        return highestBidder;
+    }
+
+    // Get the remaining time in the auction
+    function getRemainingTime(): Int {
+        if (now() >= endTime) {
+            return 0;
+        }
+        return endTime - now();
+    }
+
+    // Check if the auction has ended
+    function hasEnded(): Bool {
+        return ended;
+    }
+
+    // Events
+    event HighestBidIncreased(bidder: Address, amount: Int)
+    event AuctionEnded(winner: Address, amount: Int)
+} 
