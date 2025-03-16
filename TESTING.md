@@ -23,33 +23,31 @@ The easiest way to run all tests locally is to use the provided script:
 ```
 
 This script will:
-1. Check and fix code formatting
-2. Run linting and static analysis
-3. Run unit tests with race detection and coverage
-4. Run benchmarks
-5. Build the project
-6. Run example programs
+1. Check your Go version and adjust commands accordingly
+2. Check and fix code formatting
+3. Run linting and static analysis
+4. Run unit tests with race detection and coverage
+5. Run benchmarks
+6. Build the project
+7. Run example programs
 
 ### Unit Tests
 
 Run all unit tests:
 
 ```bash
-export GO111MODULE=on
 go test ./...
 ```
 
 Run tests with verbose output:
 
 ```bash
-export GO111MODULE=on
 go test -v ./...
 ```
 
 Run tests with coverage:
 
 ```bash
-export GO111MODULE=on
 go test -coverprofile=coverage.out ./...
 go tool cover -html=coverage.out  # View coverage in browser
 ```
@@ -59,14 +57,12 @@ go tool cover -html=coverage.out  # View coverage in browser
 Run benchmarks:
 
 ```bash
-export GO111MODULE=on
 go test -bench=. -benchmem ./...
 ```
 
 Run specific benchmarks:
 
 ```bash
-export GO111MODULE=on
 go test -bench=BenchmarkLexer -benchmem ./pkg/lexer
 ```
 
@@ -81,14 +77,14 @@ gofmt -w .
 Run linter:
 
 ```bash
-export GO111MODULE=on
+golint ./...
+# or if golint is installed via go install
 $(go env GOPATH)/bin/golint ./...
 ```
 
 Run Go's built-in code analyzer:
 
 ```bash
-export GO111MODULE=on
 go vet ./...
 ```
 

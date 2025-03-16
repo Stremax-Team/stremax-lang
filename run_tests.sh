@@ -9,8 +9,19 @@ NC='\033[0m' # No Color
 echo -e "${YELLOW}Running Stremax-Lang Test Suite${NC}"
 echo "=================================="
 
-# Enable Go modules
-export GO111MODULE=on
+# Check Go version
+GO_VERSION=$(go version | awk '{print $3}' | sed 's/go//')
+echo -e "${YELLOW}Using Go version: ${GO_VERSION}${NC}"
+
+# Only run go mod download if we're using Go 1.11 or higher
+if [ "$(printf '%s\n' "1.11" "$GO_VERSION" | sort -V | head -n1)" = "1.11" ]; then
+  echo -e "${YELLOW}Go modules supported. Checking dependencies...${NC}"
+  # Skip go mod download since we don't have external dependencies yet
+  # If we add dependencies later, we can uncomment this
+  # go mod download
+else
+  echo -e "${YELLOW}Go modules not supported in this version. Skipping dependency check.${NC}"
+fi
 
 # Format check
 echo -e "\n${YELLOW}Checking code formatting...${NC}"
