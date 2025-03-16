@@ -56,10 +56,10 @@ func BenchmarkParseExpression(b *testing.B) {
 	input := "5 + 10 * 2 + 20 / 4 - 8"
 	l := lexer.New(input)
 	p := New(l)
-	
+
 	// Skip to the expression
 	p.nextToken()
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		// Reset the parser for each iteration

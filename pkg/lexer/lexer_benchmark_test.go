@@ -58,7 +58,7 @@ func BenchmarkLexer(b *testing.B) {
 func BenchmarkNextToken(b *testing.B) {
 	l := New(benchmarkInput)
 	b.ResetTimer()
-	
+
 	for i := 0; i < b.N; i++ {
 		l.NextToken()
 		// Reset the lexer when we reach EOF
@@ -66,4 +66,4 @@ func BenchmarkNextToken(b *testing.B) {
 			l = New(benchmarkInput)
 		}
 	}
-} 
+}

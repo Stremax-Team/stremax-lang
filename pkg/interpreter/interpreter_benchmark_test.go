@@ -35,9 +35,9 @@ func BenchmarkEvalExpression(b *testing.B) {
 	l := lexer.New(input)
 	p := parser.New(l)
 	expr := p.ParseProgram().Statements[0].(*parser.ExpressionStatement).Expression
-	
+
 	interpreter := New("")
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		interpreter.evalExpression(expr)
@@ -54,10 +54,10 @@ func BenchmarkArithmeticOperations(b *testing.B) {
 	let result = a + b * c - d / 2;
 	result;
 	`
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		interpreter := New(input)
 		interpreter.Run()
 	}
-} 
+}
