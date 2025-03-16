@@ -9,6 +9,9 @@ NC='\033[0m' # No Color
 echo -e "${YELLOW}Running Stremax-Lang Test Suite${NC}"
 echo "=================================="
 
+# Enable Go modules
+export GO111MODULE=on
+
 # Format check
 echo -e "\n${YELLOW}Checking code formatting...${NC}"
 if [ "$(gofmt -l . | wc -l)" -gt 0 ]; then
@@ -26,7 +29,9 @@ echo -e "\n${YELLOW}Running linter...${NC}"
 if command -v golint > /dev/null; then
   golint ./...
 else
-  echo -e "${RED}golint not installed. Run: go install golang.org/x/lint/golint@latest${NC}"
+  echo -e "${RED}golint not installed. Installing...${NC}"
+  go install golang.org/x/lint/golint@latest
+  $(go env GOPATH)/bin/golint ./...
 fi
 
 # Vet check

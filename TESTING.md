@@ -6,33 +6,50 @@ This document summarizes the testing of the Stremax-Lang interpreter.
 
 Stremax-Lang uses GitHub Actions for continuous integration. The CI pipeline includes:
 
-1. **Building**: Compiles the project for multiple platforms
-2. **Testing**: Runs unit tests across multiple Go versions and operating systems
-3. **Linting**: Ensures code quality with gofmt, golint, go vet, and staticcheck
+1. **Building**: Compiles the project and uploads the binary as an artifact
+2. **Testing**: Runs unit tests with race detection and coverage analysis
+3. **Linting**: Ensures code quality with gofmt, golint, and go vet
 4. **Integration Testing**: Runs example programs to verify end-to-end functionality
-5. **Benchmarking**: Measures performance and detects regressions
+5. **Benchmarking**: Measures performance and uploads results as artifacts
 
 You can view the CI configuration in `.github/workflows/ci.yml`.
 
 ## Running Tests Locally
+
+The easiest way to run all tests locally is to use the provided script:
+
+```bash
+./run_tests.sh
+```
+
+This script will:
+1. Check and fix code formatting
+2. Run linting and static analysis
+3. Run unit tests with race detection and coverage
+4. Run benchmarks
+5. Build the project
+6. Run example programs
 
 ### Unit Tests
 
 Run all unit tests:
 
 ```bash
+export GO111MODULE=on
 go test ./...
 ```
 
 Run tests with verbose output:
 
 ```bash
+export GO111MODULE=on
 go test -v ./...
 ```
 
 Run tests with coverage:
 
 ```bash
+export GO111MODULE=on
 go test -coverprofile=coverage.out ./...
 go tool cover -html=coverage.out  # View coverage in browser
 ```
@@ -42,12 +59,14 @@ go tool cover -html=coverage.out  # View coverage in browser
 Run benchmarks:
 
 ```bash
+export GO111MODULE=on
 go test -bench=. -benchmem ./...
 ```
 
 Run specific benchmarks:
 
 ```bash
+export GO111MODULE=on
 go test -bench=BenchmarkLexer -benchmem ./pkg/lexer
 ```
 
@@ -62,12 +81,14 @@ gofmt -w .
 Run linter:
 
 ```bash
-golint ./...
+export GO111MODULE=on
+$(go env GOPATH)/bin/golint ./...
 ```
 
 Run Go's built-in code analyzer:
 
 ```bash
+export GO111MODULE=on
 go vet ./...
 ```
 
@@ -83,6 +104,16 @@ The interpreter has been tested with a suite of unit tests in `pkg/interpreter/i
 - Error handling
 
 All tests are passing, which indicates that the core functionality of the interpreter is working correctly.
+
+## Benchmark Tests
+
+We've added benchmark tests for key components:
+
+- **Lexer Benchmarks** (`pkg/lexer/lexer_benchmark_test.go`): Tests the performance of tokenization
+- **Parser Benchmarks** (`pkg/parser/parser_benchmark_test.go`): Tests the performance of parsing
+- **Interpreter Benchmarks** (`pkg/interpreter/interpreter_benchmark_test.go`): Tests the performance of code execution
+
+These benchmarks help us track performance over time and detect regressions.
 
 ## Example Programs
 
