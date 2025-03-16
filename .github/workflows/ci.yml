@@ -10,8 +10,8 @@ on:
     - cron: '0 0 * * 0'  # Run weekly on Sundays at midnight UTC
 
 jobs:
-  build:
-    name: Build
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
     timeout-minutes: 10  # Add timeout to prevent hanging jobs
     
@@ -33,31 +33,6 @@ jobs:
       - name: Build
         run: go build -v ./cmd/stremax
 
-      - name: Upload binary
-        uses: actions/upload-artifact@v2  # Use v2 for compatibility
-        with:
-          name: stremax-binary
-          path: ./stremax
-          retention-days: 1
-
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Create empty go.sum if it doesn't exist
-        run: touch go.sum
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-          cache: true  # Enable cache now that we have a go.sum file
-
       - name: Run unit tests
         run: go test -v ./...
 
@@ -67,12 +42,24 @@ jobs:
       - name: Run tests with coverage
         run: go test -coverprofile=coverage.out -covermode=atomic ./...
 
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v2  # Use v2 for compatibility
-        with:
-          name: coverage-report
-          path: ./coverage.out
-          retention-days: 1
+      - name: Display coverage
+        run: go tool cover -func=coverage.out
+
+      - name: Run example programs
+        run: |
+          chmod +x ./stremax
+          ./stremax run -file ./examples/simple.sx
+          ./stremax run -file ./examples/arithmetic.sx
+          ./stremax run -file ./examples/strings.sx
+          ./stremax run -file ./examples/conditionals.sx
+          ./stremax run -file ./examples/boolean.sx
+          ./stremax run -file ./examples/combined.sx
+
+      - name: Run benchmarks
+        run: go test -bench=. -benchmem ./... > benchmark-result.txt
+
+      - name: Display benchmark results
+        run: cat benchmark-result.txt
 
   lint:
     name: Lint
@@ -108,60 +95,4 @@ jobs:
         run: $(go env GOPATH)/bin/golint -set_exit_status ./...
 
       - name: Run go vet
-        run: go vet ./...
-
-  integration:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: build
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Download binary
-        uses: actions/download-artifact@v2  # Use v2 for compatibility
-        with:
-          name: stremax-binary
-          path: .
-
-      - name: Make binary executable
-        run: chmod +x ./stremax
-
-      - name: Run example programs
-        run: |
-          ./stremax run -file ./examples/simple.sx
-          ./stremax run -file ./examples/arithmetic.sx
-          ./stremax run -file ./examples/strings.sx
-          ./stremax run -file ./examples/conditionals.sx
-          ./stremax run -file ./examples/boolean.sx
-          ./stremax run -file ./examples/combined.sx
-
-  benchmark:
-    name: Benchmarks
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Create empty go.sum if it doesn't exist
-        run: touch go.sum
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-          cache: true  # Enable cache now that we have a go.sum file
-
-      - name: Run benchmarks
-        run: go test -bench=. -benchmem ./... > benchmark-result.txt
-
-      - name: Upload benchmark results
-        uses: actions/upload-artifact@v2  # Use v2 for compatibility
-        with:
-          name: benchmark-results
-          path: ./benchmark-result.txt
-          retention-days: 7 
+        run: go vet ./... 
