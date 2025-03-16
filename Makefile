@@ -1,4 +1,4 @@
-.PHONY: build test clean run
+.PHONY: build test test-all test-coverage clean run
 
 # Build the stremax binary
 build:
@@ -8,10 +8,18 @@ build:
 test:
 	go test ./...
 
+# Run comprehensive test suite
+test-all:
+	./run_tests.sh
+
 # Run tests with coverage
 test-coverage:
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out
+
+# Run benchmarks
+benchmark:
+	go test -bench=. -benchmem ./...
 
 # Clean build artifacts
 clean:
@@ -55,7 +63,9 @@ help:
 	@echo "Available targets:"
 	@echo "  build          - Build the stremax binary"
 	@echo "  test           - Run all tests"
+	@echo "  test-all       - Run comprehensive test suite"
 	@echo "  test-coverage  - Run tests with coverage"
+	@echo "  benchmark      - Run benchmarks"
 	@echo "  clean          - Clean build artifacts"
 	@echo "  run FILE=<file> - Run a stremax program"
 	@echo "  install        - Install stremax globally"

@@ -2,6 +2,75 @@
 
 This document summarizes the testing of the Stremax-Lang interpreter.
 
+## Continuous Integration
+
+Stremax-Lang uses GitHub Actions for continuous integration. The CI pipeline includes:
+
+1. **Building**: Compiles the project for multiple platforms
+2. **Testing**: Runs unit tests across multiple Go versions and operating systems
+3. **Linting**: Ensures code quality with gofmt, golint, go vet, and staticcheck
+4. **Integration Testing**: Runs example programs to verify end-to-end functionality
+5. **Benchmarking**: Measures performance and detects regressions
+
+You can view the CI configuration in `.github/workflows/ci.yml`.
+
+## Running Tests Locally
+
+### Unit Tests
+
+Run all unit tests:
+
+```bash
+go test ./...
+```
+
+Run tests with verbose output:
+
+```bash
+go test -v ./...
+```
+
+Run tests with coverage:
+
+```bash
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out  # View coverage in browser
+```
+
+### Benchmarks
+
+Run benchmarks:
+
+```bash
+go test -bench=. -benchmem ./...
+```
+
+Run specific benchmarks:
+
+```bash
+go test -bench=BenchmarkLexer -benchmem ./pkg/lexer
+```
+
+### Linting
+
+Format code:
+
+```bash
+gofmt -w .
+```
+
+Run linter:
+
+```bash
+golint ./...
+```
+
+Run Go's built-in code analyzer:
+
+```bash
+go vet ./...
+```
+
 ## Interpreter Tests
 
 The interpreter has been tested with a suite of unit tests in `pkg/interpreter/interpreter_test.go`. These tests cover:

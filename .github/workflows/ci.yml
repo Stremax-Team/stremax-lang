@@ -1,0 +1,183 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly on Sundays at midnight UTC
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+          cache: true
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Build
+        run: go build -v ./cmd/stremax
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: stremax-binary
+          path: ./stremax
+          retention-days: 7
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        go-version: [1.19, 1.20, 1.21]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+      fail-fast: false  # Continue with other tests even if one fails
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run unit tests
+        run: go test -v ./...
+
+      - name: Run tests with race detection
+        if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.21'
+        run: go test -race -v ./...
+
+      - name: Run tests with coverage
+        if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.21'
+        run: go test -coverprofile=coverage.out -covermode=atomic ./...
+
+      - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.21'
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.out
+          fail_ci_if_error: false
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+          cache: true
+
+      - name: Install golint
+        run: go install golang.org/x/lint/golint@latest
+
+      - name: Install staticcheck
+        run: go install honnef.co/go/tools/cmd/staticcheck@latest
+
+      - name: Run gofmt
+        run: |
+          if [ "$(gofmt -l . | wc -l)" -gt 0 ]; then
+            echo "The following files need formatting:"
+            gofmt -l .
+            echo "Please run 'gofmt -w .' to fix these issues"
+            exit 1
+          fi
+
+      - name: Run golint
+        run: $(go env GOPATH)/bin/golint -set_exit_status ./...
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run staticcheck
+        run: $(go env GOPATH)/bin/staticcheck ./...
+
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+          cache: true
+
+      - name: Download binary
+        uses: actions/download-artifact@v3
+        with:
+          name: stremax-binary
+          path: .
+
+      - name: Make binary executable
+        run: chmod +x ./stremax
+
+      - name: Run example programs
+        run: |
+          ./stremax run -file ./examples/simple.sx
+          ./stremax run -file ./examples/arithmetic.sx
+          ./stremax run -file ./examples/strings.sx
+          ./stremax run -file ./examples/conditionals.sx
+          ./stremax run -file ./examples/boolean.sx
+          ./stremax run -file ./examples/combined.sx
+          # Skip examples that are expected to fail
+          # ./stremax run -file ./examples/errors.sx
+
+  benchmark:
+    name: Benchmarks
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+          cache: true
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run benchmarks
+        run: go test -bench=. -benchmem ./... | tee benchmark-result.txt
+
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'go'
+          output-file-path: benchmark-result.txt
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: true
+          alert-comment-cc-users: '@Stremax-Team' 
