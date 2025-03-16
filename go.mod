@@ -1,3 +1,3 @@
 module github.com/Stremax-Team/stremax-lang
 
-go 1.16
+go 1.21
