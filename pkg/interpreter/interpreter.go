@@ -14,7 +14,7 @@ import (
 type Object interface {
 	// Type returns the type of the object as a string.
 	Type() string
-	
+
 	// Inspect returns a string representation of the object.
 	Inspect() string
 }
