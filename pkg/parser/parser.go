@@ -21,9 +21,9 @@ const (
 )
 
 // Operator precedence map
-var precedences = map[TokenType]int{
+var precedences = map[lexer.TokenType]int{
 	lexer.EQ:       EQUALS,
-	lexer.NOT_EQ:   EQUALS,
+	lexer.NotEq:   EQUALS,
 	lexer.LT:       LESSGREATER,
 	lexer.GT:       LESSGREATER,
 	lexer.PLUS:     SUM,
@@ -39,11 +39,11 @@ var precedences = map[TokenType]int{
 type Parser struct {
 	l         *lexer.Lexer
 	errors    []string
-	curToken  Token
-	peekToken Token
+	curToken  lexer.Token
+	peekToken lexer.Token
 
-	prefixParseFns map[TokenType]prefixParseFn
-	infixParseFns  map[TokenType]infixParseFn
+	prefixParseFns map[lexer.TokenType]prefixParseFn
+	infixParseFns  map[lexer.TokenType]infixParseFn
 }
 
 type (
@@ -63,7 +63,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.nextToken()
 
 	// Register prefix parse functions
-	p.prefixParseFns = make(map[TokenType]prefixParseFn)
+	p.prefixParseFns = make(map[lexer.TokenType]prefixParseFn)
 	p.registerPrefix(lexer.IDENT, p.parseIdentifier)
 	p.registerPrefix(lexer.INT, p.parseIntegerLiteral)
 	p.registerPrefix(lexer.STRING, p.parseStringLiteral)
@@ -75,13 +75,13 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(lexer.IF, p.parseIfExpression)
 
 	// Register infix parse functions
-	p.infixParseFns = make(map[TokenType]infixParseFn)
+	p.infixParseFns = make(map[lexer.TokenType]infixParseFn)
 	p.registerInfix(lexer.PLUS, p.parseInfixExpression)
 	p.registerInfix(lexer.MINUS, p.parseInfixExpression)
 	p.registerInfix(lexer.SLASH, p.parseInfixExpression)
 	p.registerInfix(lexer.ASTERISK, p.parseInfixExpression)
 	p.registerInfix(lexer.EQ, p.parseInfixExpression)
-	p.registerInfix(lexer.NOT_EQ, p.parseInfixExpression)
+	p.registerInfix(lexer.NotEq, p.parseInfixExpression)
 	p.registerInfix(lexer.LT, p.parseInfixExpression)
 	p.registerInfix(lexer.GT, p.parseInfixExpression)
 	p.registerInfix(lexer.LPAREN, p.parseCallExpression)
@@ -570,7 +570,7 @@ func (p *Parser) parseIndexExpression(left Expression) Expression {
 }
 
 // parseExpressionList parses a list of expressions
-func (p *Parser) parseExpressionList(end TokenType) []Expression {
+func (p *Parser) parseExpressionList(end lexer.TokenType) []Expression {
 	list := []Expression{}
 
 	if p.peekTokenIs(end) {
@@ -684,17 +684,17 @@ func (p *Parser) parseTypeExpression() *TypeExpression {
 }
 
 // curTokenIs checks if the current token is of the given type
-func (p *Parser) curTokenIs(t TokenType) bool {
+func (p *Parser) curTokenIs(t lexer.TokenType) bool {
 	return p.curToken.Type == t
 }
 
 // peekTokenIs checks if the next token is of the given type
-func (p *Parser) peekTokenIs(t TokenType) bool {
+func (p *Parser) peekTokenIs(t lexer.TokenType) bool {
 	return p.peekToken.Type == t
 }
 
 // expectPeek checks if the next token is of the given type and advances if it is
-func (p *Parser) expectPeek(t TokenType) bool {
+func (p *Parser) expectPeek(t lexer.TokenType) bool {
 	if p.peekTokenIs(t) {
 		p.nextToken()
 		return true
@@ -720,25 +720,25 @@ func (p *Parser) curPrecedence() int {
 }
 
 // peekError adds an error for an unexpected token
-func (p *Parser) peekError(t TokenType) {
+func (p *Parser) peekError(t lexer.TokenType) {
 	msg := fmt.Sprintf("expected next token to be %s, got %s instead",
 		t, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
 }
 
 // noPrefixParseFnError adds an error for a token that doesn't have a prefix parse function
-func (p *Parser) noPrefixParseFnError(t TokenType) {
+func (p *Parser) noPrefixParseFnError(t lexer.TokenType) {
 	msg := fmt.Sprintf("no prefix parse function for %s found", t)
 	p.errors = append(p.errors, msg)
 }
 
 // registerPrefix registers a prefix parse function
-func (p *Parser) registerPrefix(tokenType TokenType, fn prefixParseFn) {
+func (p *Parser) registerPrefix(tokenType lexer.TokenType, fn prefixParseFn) {
 	p.prefixParseFns[tokenType] = fn
 }
 
 // registerInfix registers an infix parse function
-func (p *Parser) registerInfix(tokenType TokenType, fn infixParseFn) {
+func (p *Parser) registerInfix(tokenType lexer.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
 }
 

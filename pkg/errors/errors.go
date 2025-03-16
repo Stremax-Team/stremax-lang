@@ -8,13 +8,18 @@ import (
 type ErrorType string
 
 const (
-	// Error types
-	SyntaxError    ErrorType = "SyntaxError"
-	TypeError      ErrorType = "TypeError"
+	// SyntaxError represents a syntax error in the source code
+	SyntaxError ErrorType = "SyntaxError"
+	// TypeError represents a type mismatch or invalid type operation
+	TypeError ErrorType = "TypeError"
+	// ReferenceError represents an error when referencing an undefined variable
 	ReferenceError ErrorType = "ReferenceError"
-	RuntimeError   ErrorType = "RuntimeError"
+	// RuntimeError represents a general runtime error
+	RuntimeError ErrorType = "RuntimeError"
+	// BlockchainError represents an error related to blockchain operations
 	BlockchainError ErrorType = "BlockchainError"
-	ContractError  ErrorType = "ContractError"
+	// ContractError represents an error in a smart contract
+	ContractError ErrorType = "ContractError"
 )
 
 // Error represents a Stremax-Lang error

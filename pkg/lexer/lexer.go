@@ -75,7 +75,7 @@ func (l *Lexer) NextToken() Token {
 		if l.peekChar() == '=' {
 			ch := l.ch
 			l.readChar()
-			tok = Token{Type: NOT_EQ, Literal: string(ch) + string(l.ch)}
+			tok = Token{Type: NotEq, Literal: string(ch) + string(l.ch)}
 		} else {
 			tok = newToken(BANG, l.ch)
 		}

@@ -19,7 +19,10 @@ type Integer struct {
 	Value int64
 }
 
+// Type returns the type of the Integer object
 func (i *Integer) Type() string { return "INTEGER" }
+
+// Inspect returns a string representation of the Integer object
 func (i *Integer) Inspect() string { return fmt.Sprintf("%d", i.Value) }
 
 // String represents a string value
@@ -27,7 +30,10 @@ type String struct {
 	Value string
 }
 
+// Type returns the type of the String object
 func (s *String) Type() string { return "STRING" }
+
+// Inspect returns a string representation of the String object
 func (s *String) Inspect() string { return s.Value }
 
 // Boolean represents a boolean value
@@ -35,7 +41,10 @@ type Boolean struct {
 	Value bool
 }
 
+// Type returns the type of the Boolean object
 func (b *Boolean) Type() string { return "BOOLEAN" }
+
+// Inspect returns a string representation of the Boolean object
 func (b *Boolean) Inspect() string { return fmt.Sprintf("%t", b.Value) }
 
 // Address represents a blockchain address
@@ -43,7 +52,10 @@ type Address struct {
 	Value blockchain.Address
 }
 
+// Type returns the type of the Address object
 func (a *Address) Type() string { return "ADDRESS" }
+
+// Inspect returns a string representation of the Address object
 func (a *Address) Inspect() string { return string(a.Value) }
 
 // Environment represents a variable environment

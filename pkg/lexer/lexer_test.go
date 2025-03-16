@@ -128,7 +128,7 @@ func TestNextToken(t *testing.T) {
 		{SEMICOLON, ";"},
 		
 		{INT, "10"},
-		{NOT_EQ, "!="},
+		{NotEq, "!="},
 		{INT, "9"},
 		{SEMICOLON, ";"},
 		
