@@ -128,13 +128,13 @@ func (fs *FunctionStatement) String() string {
 	out.WriteString("(")
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(") ")
-	
+
 	if fs.ReturnType != nil {
 		out.WriteString(": ")
 		out.WriteString(fs.ReturnType.String())
 		out.WriteString(" ")
 	}
-	
+
 	out.WriteString(fs.Body.String())
 
 	return out.String()
@@ -299,12 +299,12 @@ func (ls *LetStatement) String() string {
 	out.WriteString(ls.TokenLiteral())
 	out.WriteString(" ")
 	out.WriteString(ls.Name.String())
-	
+
 	if ls.Type != nil {
 		out.WriteString(": ")
 		out.WriteString(ls.Type.String())
 	}
-	
+
 	if ls.Value != nil {
 		out.WriteString(" = ")
 		out.WriteString(ls.Value.String())
@@ -365,12 +365,12 @@ func (rs *RequireStatement) String() string {
 	out.WriteString(rs.TokenLiteral())
 	out.WriteString("(")
 	out.WriteString(rs.Condition.String())
-	
+
 	if rs.Message != nil {
 		out.WriteString(", ")
 		out.WriteString(rs.Message.String())
 	}
-	
+
 	out.WriteString(")")
 
 	return out.String()
@@ -378,8 +378,8 @@ func (rs *RequireStatement) String() string {
 
 // EmitStatement represents an emit statement
 type EmitStatement struct {
-	Token     Token       // the 'emit' token
-	EventName *Identifier // the event name
+	Token     Token        // the 'emit' token
+	EventName *Identifier  // the event name
 	Arguments []Expression // the event arguments
 }
 
@@ -429,8 +429,8 @@ func (i *Identifier) String() string {
 
 // TypeExpression represents a type expression
 type TypeExpression struct {
-	Token     Token  // the type token
-	Type      string // the type name (e.g., Int, String, Address, Map)
+	Token     Token           // the type token
+	Type      string          // the type name (e.g., Int, String, Address, Map)
 	KeyType   *TypeExpression // for Map types, the key type
 	ValueType *TypeExpression // for Map types, the value type
 }
@@ -709,4 +709,4 @@ func (ie *IfExpression) String() string {
 	}
 
 	return out.String()
-} 
+}

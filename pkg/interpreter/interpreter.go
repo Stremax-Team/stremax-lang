@@ -107,7 +107,7 @@ type Interpreter struct {
 func New(source string) *Interpreter {
 	l := lexer.New(source)
 	p := parser.New(l)
-	
+
 	return &Interpreter{
 		source: source,
 		lexer:  l,
@@ -127,17 +127,17 @@ func (i *Interpreter) Run() error {
 		}
 		return errors.NewSyntaxError("Failed to parse program", 0, 0, "")
 	}
-	
+
 	// Evaluate the program
 	result, err := i.evalProgram(program)
 	if err != nil {
 		return err
 	}
-	
+
 	if result != nil {
 		fmt.Printf("Result: %s\n", result.Inspect())
 	}
-	
+
 	return nil
 }
 
@@ -145,14 +145,14 @@ func (i *Interpreter) Run() error {
 func (i *Interpreter) evalProgram(program *parser.Program) (Object, error) {
 	var result Object
 	var err error
-	
+
 	for _, stmt := range program.Statements {
 		result, err = i.evalStatement(stmt)
 		if err != nil {
 			return nil, err
 		}
 	}
-	
+
 	return result, nil
 }
 
@@ -186,7 +186,7 @@ func (i *Interpreter) evalLetStatement(stmt *parser.LetStatement) (Object, error
 	if err != nil {
 		return nil, err
 	}
-	
+
 	i.env.Set(stmt.Name.Value, val)
 	return val, nil
 }
@@ -200,14 +200,14 @@ func (i *Interpreter) evalReturnStatement(stmt *parser.ReturnStatement) (Object,
 func (i *Interpreter) evalBlockStatement(block *parser.BlockStatement) (Object, error) {
 	var result Object
 	var err error
-	
+
 	for _, stmt := range block.Statements {
 		result, err = i.evalStatement(stmt)
 		if err != nil {
 			return nil, err
 		}
 	}
-	
+
 	return result, nil
 }
 
@@ -254,7 +254,7 @@ func (i *Interpreter) evalPrefixExpression(expr *parser.PrefixExpression) (Objec
 	if err != nil {
 		return nil, err
 	}
-	
+
 	switch expr.Operator {
 	case "!":
 		return i.evalBangOperatorExpression(right)
@@ -280,7 +280,7 @@ func (i *Interpreter) evalMinusPrefixOperatorExpression(right Object) (Object, e
 	if right.Type() != "INTEGER" {
 		return nil, errors.NewTypeError("Cannot negate non-integer", 0, 0, "")
 	}
-	
+
 	value := right.(*Integer).Value
 	return &Integer{Value: -value}, nil
 }
@@ -291,12 +291,12 @@ func (i *Interpreter) evalInfixExpression(expr *parser.InfixExpression) (Object,
 	if err != nil {
 		return nil, err
 	}
-	
+
 	right, err := i.evalExpression(expr.Right)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	switch {
 	case left.Type() == "INTEGER" && right.Type() == "INTEGER":
 		return i.evalIntegerInfixExpression(expr.Operator, left, right)
@@ -320,7 +320,7 @@ func (i *Interpreter) evalInfixExpression(expr *parser.InfixExpression) (Object,
 func (i *Interpreter) evalIntegerInfixExpression(operator string, left, right Object) (Object, error) {
 	leftVal := left.(*Integer).Value
 	rightVal := right.(*Integer).Value
-	
+
 	switch operator {
 	case "+":
 		return &Integer{Value: leftVal + rightVal}, nil
@@ -350,7 +350,7 @@ func (i *Interpreter) evalIntegerInfixExpression(operator string, left, right Ob
 func (i *Interpreter) evalStringInfixExpression(operator string, left, right Object) (Object, error) {
 	leftVal := left.(*String).Value
 	rightVal := right.(*String).Value
-	
+
 	switch operator {
 	case "+":
 		return &String{Value: leftVal + rightVal}, nil
@@ -369,7 +369,7 @@ func (i *Interpreter) evalIfExpression(expr *parser.IfExpression) (Object, error
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if isTruthy(condition) {
 		return i.evalBlockStatement(expr.Consequence)
 	} else if expr.Alternative != nil {
@@ -427,7 +427,7 @@ func (i *Interpreter) evalRequireStatement(stmt *parser.RequireStatement) (Objec
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if !isTruthy(condition) {
 		message := "Requirement failed"
 		if stmt.Message != nil {
@@ -435,14 +435,14 @@ func (i *Interpreter) evalRequireStatement(stmt *parser.RequireStatement) (Objec
 			if err != nil {
 				return nil, err
 			}
-			
+
 			if msgObj.Type() == "STRING" {
 				message = msgObj.(*String).Value
 			}
 		}
 		return nil, errors.NewRuntimeError(message, stmt.Token.Line, stmt.Token.Column, "")
 	}
-	
+
 	return nil, nil
 }
 
@@ -450,7 +450,7 @@ func (i *Interpreter) evalRequireStatement(stmt *parser.RequireStatement) (Objec
 func (i *Interpreter) evalEmitStatement(stmt *parser.EmitStatement) (Object, error) {
 	// For now, just print the event
 	fmt.Printf("Event emitted: %s\n", stmt.EventName.Value)
-	
+
 	for _, arg := range stmt.Arguments {
 		argObj, err := i.evalExpression(arg)
 		if err != nil {
@@ -458,6 +458,6 @@ func (i *Interpreter) evalEmitStatement(stmt *parser.EmitStatement) (Object, err
 		}
 		fmt.Printf("  Argument: %s\n", argObj.Inspect())
 	}
-	
+
 	return nil, nil
-} 
+}

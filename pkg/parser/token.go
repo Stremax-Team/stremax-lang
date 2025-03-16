@@ -8,4 +8,4 @@ import (
 type Token = lexer.Token
 
 // TokenType is an alias for lexer.TokenType
-type TokenType = lexer.TokenType 
+type TokenType = lexer.TokenType

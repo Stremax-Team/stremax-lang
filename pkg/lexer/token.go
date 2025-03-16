@@ -16,12 +16,12 @@ const (
 	// Special tokens
 	ILLEGAL = "ILLEGAL" // Token we don't know about
 	EOF     = "EOF"     // End of file
-	
+
 	// Identifiers and literals
 	IDENT  = "IDENT"  // add, x, y, etc.
 	INT    = "INT"    // 123456
 	STRING = "STRING" // "hello"
-	
+
 	// Operators
 	ASSIGN   = "="
 	PLUS     = "+"
@@ -29,40 +29,40 @@ const (
 	BANG     = "!"
 	ASTERISK = "*"
 	SLASH    = "/"
-	
-	LT     = "<"
-	GT     = ">"
-	EQ     = "=="
+
+	LT    = "<"
+	GT    = ">"
+	EQ    = "=="
 	NotEq = "!="
-	
+
 	// Delimiters
 	COMMA     = ","
 	SEMICOLON = ";"
 	COLON     = ":"
 	DOT       = "."
-	
+
 	LPAREN   = "("
 	RPAREN   = ")"
 	LBRACE   = "{"
 	RBRACE   = "}"
 	LBRACKET = "["
 	RBRACKET = "]"
-	
+
 	// Keywords
-	FUNCTION   = "FUNCTION"
-	CONTRACT   = "CONTRACT"
-	STATE      = "STATE"
-	LET        = "LET"
-	TRUE       = "TRUE"
-	FALSE      = "FALSE"
-	IF         = "IF"
-	ELSE       = "ELSE"
-	RETURN     = "RETURN"
-	REQUIRE    = "REQUIRE"
-	EMIT       = "EMIT"
-	EVENT      = "EVENT"
-	ADDRESS    = "ADDRESS"
-	MAP        = "MAP"
+	FUNCTION    = "FUNCTION"
+	CONTRACT    = "CONTRACT"
+	STATE       = "STATE"
+	LET         = "LET"
+	TRUE        = "TRUE"
+	FALSE       = "FALSE"
+	IF          = "IF"
+	ELSE        = "ELSE"
+	RETURN      = "RETURN"
+	REQUIRE     = "REQUIRE"
+	EMIT        = "EMIT"
+	EVENT       = "EVENT"
+	ADDRESS     = "ADDRESS"
+	MAP         = "MAP"
 	CONSTRUCTOR = "CONSTRUCTOR"
 )
 
@@ -91,4 +91,4 @@ func LookupIdent(ident string) TokenType {
 		return tok
 	}
 	return IDENT
-} 
+}

@@ -58,10 +58,10 @@ func New() *Blockchain {
 		Difficulty:          4, // Arbitrary difficulty
 		Contracts:           make(map[Address]*SmartContract),
 	}
-	
+
 	// Create the genesis block
 	bc.createGenesisBlock()
-	
+
 	return bc
 }
 
@@ -74,29 +74,29 @@ func (bc *Blockchain) createGenesisBlock() {
 		PrevHash:     "0",
 		Nonce:        0,
 	}
-	
+
 	genesisBlock.Hash = bc.calculateHash(genesisBlock)
 	bc.Chain = append(bc.Chain, genesisBlock)
 }
 
 // calculateHash calculates the hash of a block
 func (bc *Blockchain) calculateHash(block *Block) string {
-	record := fmt.Sprintf("%d%s%s%d", 
-		block.Index, 
-		block.Timestamp.String(), 
-		block.PrevHash, 
+	record := fmt.Sprintf("%d%s%s%d",
+		block.Index,
+		block.Timestamp.String(),
+		block.PrevHash,
 		block.Nonce,
 	)
-	
+
 	// Add transaction data to the record
 	for _, tx := range block.Transactions {
 		record += tx.Hash
 	}
-	
+
 	h := sha256.New()
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)
-	
+
 	return hex.EncodeToString(hashed)
 }
 
@@ -109,22 +109,22 @@ func (bc *Blockchain) CreateTransaction(from, to Address, amount int64, data []b
 		Timestamp: time.Now(),
 		Data:      data,
 	}
-	
+
 	// Calculate transaction hash
 	h := sha256.New()
-	record := fmt.Sprintf("%s%s%d%s%s", 
-		from, 
-		to, 
-		amount, 
+	record := fmt.Sprintf("%s%s%d%s%s",
+		from,
+		to,
+		amount,
 		tx.Timestamp.String(),
 		data,
 	)
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)
 	tx.Hash = hex.EncodeToString(hashed)
-	
+
 	bc.PendingTransactions = append(bc.PendingTransactions, tx)
-	
+
 	return tx
 }
 
@@ -138,19 +138,19 @@ func (bc *Blockchain) MineBlock(minerAddress Address) *Block {
 		PrevHash:     lastBlock.Hash,
 		Nonce:        0,
 	}
-	
+
 	// Add mining reward
 	bc.CreateTransaction(Address("SYSTEM"), minerAddress, 1, []byte("Mining Reward"))
-	
+
 	// Mine the block (find a hash with the required difficulty)
 	bc.mineBlockWithProofOfWork(newBlock)
-	
+
 	// Add the block to the chain
 	bc.Chain = append(bc.Chain, newBlock)
-	
+
 	// Reset pending transactions
 	bc.PendingTransactions = []Transaction{}
-	
+
 	return newBlock
 }
 
@@ -160,7 +160,7 @@ func (bc *Blockchain) mineBlockWithProofOfWork(block *Block) {
 	for i := 0; i < bc.Difficulty; i++ {
 		target += "0"
 	}
-	
+
 	for {
 		block.Hash = bc.calculateHash(block)
 		if block.Hash[:bc.Difficulty] == target {
@@ -181,25 +181,25 @@ func (bc *Blockchain) IsChainValid() bool {
 	for i := 1; i < len(bc.Chain); i++ {
 		currentBlock := bc.Chain[i]
 		prevBlock := bc.Chain[i-1]
-		
+
 		// Check if the current block's hash is valid
 		if currentBlock.Hash != bc.calculateHash(currentBlock) {
 			return false
 		}
-		
+
 		// Check if the current block points to the previous block's hash
 		if currentBlock.PrevHash != prevBlock.Hash {
 			return false
 		}
 	}
-	
+
 	return true
 }
 
 // GetBalance returns the balance of an address
 func (bc *Blockchain) GetBalance(address Address) int64 {
 	balance := int64(0)
-	
+
 	for _, block := range bc.Chain {
 		for _, tx := range block.Transactions {
 			if tx.From == address {
@@ -210,7 +210,7 @@ func (bc *Blockchain) GetBalance(address Address) int64 {
 			}
 		}
 	}
-	
+
 	return balance
 }
 
@@ -221,7 +221,7 @@ func (bc *Blockchain) DeployContract(owner Address, code []byte) (Address, error
 	h.Write([]byte(fmt.Sprintf("%s%s%d", owner, code, time.Now().UnixNano())))
 	hashed := h.Sum(nil)
 	contractAddress := Address(hex.EncodeToString(hashed)[:40])
-	
+
 	// Create the contract
 	contract := &SmartContract{
 		Address:    contractAddress,
@@ -233,13 +233,13 @@ func (bc *Blockchain) DeployContract(owner Address, code []byte) (Address, error
 		Deployed:   true,
 		DeployTime: time.Now(),
 	}
-	
+
 	// Add the contract to the blockchain
 	bc.Contracts[contractAddress] = contract
-	
+
 	// Create a deployment transaction
 	bc.CreateTransaction(owner, contractAddress, 0, code)
-	
+
 	return contractAddress, nil
 }
 
@@ -259,20 +259,20 @@ func (bc *Blockchain) CallContract(from Address, to Address, functionName string
 	if !ok {
 		return nil, fmt.Errorf("contract not found at address %s", to)
 	}
-	
+
 	// Check if the function exists
 	function, ok := contract.Functions[functionName]
 	if !ok {
 		return nil, fmt.Errorf("function %s not found in contract", functionName)
 	}
-	
+
 	// Call the function
 	result := function(args)
-	
+
 	// Create a transaction for the function call
 	data := []byte(fmt.Sprintf("%s(%v)", functionName, args))
 	bc.CreateTransaction(from, to, 0, data)
-	
+
 	return result, nil
 }
 
@@ -283,18 +283,18 @@ func (bc *Blockchain) EmitEvent(contract Address, eventName string, args []inter
 	if !ok {
 		return fmt.Errorf("contract not found at address %s", contract)
 	}
-	
+
 	// Check if the event exists
 	event, ok := c.Events[eventName]
 	if !ok {
 		return fmt.Errorf("event %s not found in contract", eventName)
 	}
-	
+
 	// Emit the event
 	event(args)
-	
+
 	// Log the event
 	fmt.Printf("Event emitted: %s from contract %s with args %v\n", eventName, contract, args)
-	
+
 	return nil
-} 
+}

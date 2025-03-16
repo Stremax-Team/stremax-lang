@@ -163,12 +163,12 @@ func TestErrorHandling(t *testing.T) {
 		i := New(tt.input)
 
 		_, err := i.evalProgram(program)
-		
+
 		if err == nil {
 			t.Errorf("no error returned. expected to contain=%q", tt.expectedMessage)
 			continue
 		}
-		
+
 		if !contains(err.Error(), tt.expectedMessage) {
 			t.Errorf("wrong error message. expected to contain=%q, got=%q",
 				tt.expectedMessage, err.Error())
@@ -226,4 +226,4 @@ func testNullObject(t *testing.T, obj Object) {
 	if obj != nil {
 		t.Errorf("object is not nil. got=%T (%+v)", obj, obj)
 	}
-} 
+}

@@ -81,14 +81,14 @@ func (c *Contract) Call(sender Address, functionName string, value int64, args .
 	if !exists {
 		return nil, fmt.Errorf("function %s does not exist", functionName)
 	}
-	
+
 	ctx := &ContractContext{
 		Contract:   c,
 		Sender:     sender,
 		Value:      value,
 		Blockchain: c.Blockchain,
 	}
-	
+
 	return fn(ctx, args...)
 }
 
@@ -98,24 +98,24 @@ func (c *Contract) EmitEvent(name string, params map[string]interface{}) error {
 	if !exists {
 		return fmt.Errorf("event %s does not exist", name)
 	}
-	
+
 	// Validate parameters
 	for _, param := range event.Parameters {
 		value, exists := params[param.Name]
 		if !exists {
 			return fmt.Errorf("missing parameter %s for event %s", param.Name, name)
 		}
-		
+
 		if reflect.TypeOf(value) != param.Type {
 			return fmt.Errorf("invalid type for parameter %s in event %s", param.Name, name)
 		}
 	}
-	
+
 	c.EventLog = append(c.EventLog, Event{
 		Name:   name,
 		Params: params,
 	})
-	
+
 	return nil
 }
 
@@ -132,7 +132,7 @@ func (ctx *ContractContext) Transfer(to Address, amount int64) error {
 	if amount <= 0 {
 		return errors.New("amount must be positive")
 	}
-	
+
 	// Create a transaction from the contract to the recipient
 	ctx.Blockchain.CreateTransaction(
 		Address(ctx.Contract.Name),
@@ -140,7 +140,7 @@ func (ctx *ContractContext) Transfer(to Address, amount int64) error {
 		amount,
 		[]byte(fmt.Sprintf("Transfer from contract %s", ctx.Contract.Name)),
 	)
-	
+
 	return nil
 }
 
@@ -167,4 +167,4 @@ func (ctx *ContractContext) SetState(key string, value interface{}) {
 // EmitEvent emits an event
 func (ctx *ContractContext) EmitEvent(name string, params map[string]interface{}) error {
 	return ctx.Contract.EmitEvent(name, params)
-} 
+}

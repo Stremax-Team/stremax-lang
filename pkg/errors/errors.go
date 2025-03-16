@@ -116,13 +116,13 @@ func FormatErrorWithSource(err *Error, source string) string {
 
 	// Format the error message
 	result := fmt.Sprintf("%s\n\n", err.Error())
-	
+
 	// Add the line with the error
 	result += fmt.Sprintf("%4d | %s\n", err.Line, line)
-	
+
 	// Add a pointer to the column
 	result += fmt.Sprintf("     | %s^\n", spaces(err.Column-1))
-	
+
 	return result
 }
 
@@ -130,7 +130,7 @@ func FormatErrorWithSource(err *Error, source string) string {
 func splitLines(s string) []string {
 	var lines []string
 	var line string
-	
+
 	for _, r := range s {
 		if r == '\n' {
 			lines = append(lines, line)
@@ -139,11 +139,11 @@ func splitLines(s string) []string {
 			line += string(r)
 		}
 	}
-	
+
 	if line != "" {
 		lines = append(lines, line)
 	}
-	
+
 	return lines
 }
 
@@ -154,4 +154,4 @@ func spaces(n int) string {
 		s += " "
 	}
 	return s
-} 
+}

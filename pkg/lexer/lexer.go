@@ -51,13 +51,13 @@ func (l *Lexer) peekChar() rune {
 // NextToken returns the next token from the input
 func (l *Lexer) NextToken() Token {
 	var tok Token
-	
+
 	l.skipWhitespace()
-	
+
 	// Set the current position for the token
 	tok.Line = l.line
 	tok.Column = l.column
-	
+
 	switch l.ch {
 	case '=':
 		if l.peekChar() == '=' {
@@ -135,7 +135,7 @@ func (l *Lexer) NextToken() Token {
 			tok = newToken(ILLEGAL, l.ch)
 		}
 	}
-	
+
 	l.readChar()
 	return tok
 }
@@ -155,7 +155,7 @@ func (l *Lexer) skipWhitespace() {
 func (l *Lexer) skipLineComment() {
 	// Skip the second '/'
 	l.readChar()
-	
+
 	// Read until end of line or end of file
 	for l.ch != '\n' && l.ch != 0 {
 		l.readChar()
@@ -167,25 +167,25 @@ func (l *Lexer) skipBlockComment() {
 	// Skip the '*' after '/'
 	l.readChar()
 	l.readChar()
-	
+
 	for {
 		if l.ch == 0 {
 			// Unterminated comment
 			return
 		}
-		
+
 		if l.ch == '*' && l.peekChar() == '/' {
 			// Skip the closing '*/'
 			l.readChar()
 			l.readChar()
 			return
 		}
-		
+
 		if l.ch == '\n' {
 			l.line++
 			l.column = 0
 		}
-		
+
 		l.readChar()
 	}
 }
@@ -212,7 +212,7 @@ func (l *Lexer) readNumber() string {
 func (l *Lexer) readString() string {
 	// Skip the opening quote
 	l.readChar()
-	
+
 	position := l.position
 	for l.ch != '"' && l.ch != 0 {
 		if l.ch == '\n' {
@@ -221,7 +221,7 @@ func (l *Lexer) readString() string {
 		}
 		l.readChar()
 	}
-	
+
 	return l.input[position:l.position]
 }
 
@@ -238,4 +238,4 @@ func isDigit(ch rune) bool {
 // newToken creates a new token
 func newToken(tokenType TokenType, ch rune) Token {
 	return Token{Type: tokenType, Literal: string(ch)}
-} 
+}

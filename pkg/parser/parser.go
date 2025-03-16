@@ -2,8 +2,8 @@ package parser
 
 import (
 	"fmt"
-	"strconv"
 	"github.com/Stremax-Team/stremax-lang/pkg/lexer"
+	"strconv"
 )
 
 // Precedence levels for operators
@@ -23,7 +23,7 @@ const (
 // Operator precedence map
 var precedences = map[lexer.TokenType]int{
 	lexer.EQ:       EQUALS,
-	lexer.NotEq:   EQUALS,
+	lexer.NotEq:    EQUALS,
 	lexer.LT:       LESSGREATER,
 	lexer.GT:       LESSGREATER,
 	lexer.PLUS:     SUM,
@@ -361,19 +361,19 @@ func (p *Parser) parseEmitStatement() *EmitStatement {
 
 	// Parse arguments
 	args := []Expression{}
-	
+
 	// Check if there are any arguments
 	if !p.peekTokenIs(lexer.RPAREN) {
 		p.nextToken()
 		args = append(args, p.parseExpression(LOWEST))
-		
+
 		for p.peekTokenIs(lexer.COMMA) {
 			p.nextToken()
 			p.nextToken()
 			args = append(args, p.parseExpression(LOWEST))
 		}
 	}
-	
+
 	stmt.Arguments = args
 
 	if !p.expectPeek(lexer.RPAREN) {
@@ -656,21 +656,21 @@ func (p *Parser) parseTypeExpression() *TypeExpression {
 	} else if p.curTokenIs(lexer.MAP) {
 		// Map type (e.g., Map<Address, Int>)
 		expr.Type = "Map"
-		
+
 		if !p.expectPeek(lexer.LT) {
 			return nil
 		}
-		
+
 		p.nextToken()
 		expr.KeyType = p.parseTypeExpression()
-		
+
 		if !p.expectPeek(lexer.COMMA) {
 			return nil
 		}
-		
+
 		p.nextToken()
 		expr.ValueType = p.parseTypeExpression()
-		
+
 		if !p.expectPeek(lexer.GT) {
 			return nil
 		}

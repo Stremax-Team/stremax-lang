@@ -65,13 +65,13 @@ func TestNextToken(t *testing.T) {
 		{ASSIGN, "="},
 		{INT, "5"},
 		{SEMICOLON, ";"},
-		
+
 		{LET, "let"},
 		{IDENT, "ten"},
 		{ASSIGN, "="},
 		{INT, "10"},
 		{SEMICOLON, ";"},
-		
+
 		{FUNCTION, "function"},
 		{IDENT, "add"},
 		{LPAREN, "("},
@@ -92,7 +92,7 @@ func TestNextToken(t *testing.T) {
 		{IDENT, "y"},
 		{SEMICOLON, ";"},
 		{RBRACE, "}"},
-		
+
 		{LET, "let"},
 		{IDENT, "result"},
 		{ASSIGN, "="},
@@ -103,7 +103,7 @@ func TestNextToken(t *testing.T) {
 		{IDENT, "ten"},
 		{RPAREN, ")"},
 		{SEMICOLON, ";"},
-		
+
 		{IF, "if"},
 		{LPAREN, "("},
 		{INT, "5"},
@@ -121,21 +121,21 @@ func TestNextToken(t *testing.T) {
 		{FALSE, "false"},
 		{SEMICOLON, ";"},
 		{RBRACE, "}"},
-		
+
 		{INT, "10"},
 		{EQ, "=="},
 		{INT, "10"},
 		{SEMICOLON, ";"},
-		
+
 		{INT, "10"},
 		{NotEq, "!="},
 		{INT, "9"},
 		{SEMICOLON, ";"},
-		
+
 		{CONTRACT, "contract"},
 		{IDENT, "TokenContract"},
 		{LBRACE, "{"},
-		
+
 		{STATE, "state"},
 		{LBRACE, "{"},
 		{IDENT, "owner"},
@@ -153,7 +153,7 @@ func TestNextToken(t *testing.T) {
 		{IDENT, "Int"},
 		{GT, ">"},
 		{RBRACE, "}"},
-		
+
 		{CONSTRUCTOR, "constructor"},
 		{LPAREN, "("},
 		{IDENT, "initialSupply"},
@@ -167,12 +167,12 @@ func TestNextToken(t *testing.T) {
 		{DOT, "."},
 		{IDENT, "sender"},
 		{SEMICOLON, ";"},
-		
+
 		{IDENT, "totalSupply"},
 		{ASSIGN, "="},
 		{IDENT, "initialSupply"},
 		{SEMICOLON, ";"},
-		
+
 		{IDENT, "balances"},
 		{LBRACKET, "["},
 		{IDENT, "owner"},
@@ -181,7 +181,7 @@ func TestNextToken(t *testing.T) {
 		{IDENT, "initialSupply"},
 		{SEMICOLON, ";"},
 		{RBRACE, "}"},
-		
+
 		{FUNCTION, "function"},
 		{IDENT, "transfer"},
 		{LPAREN, "("},
@@ -194,7 +194,7 @@ func TestNextToken(t *testing.T) {
 		{IDENT, "Int"},
 		{RPAREN, ")"},
 		{LBRACE, "{"},
-		
+
 		{REQUIRE, "require"},
 		{LPAREN, "("},
 		{IDENT, "balances"},
@@ -210,7 +210,7 @@ func TestNextToken(t *testing.T) {
 		{STRING, "Insufficient balance"},
 		{RPAREN, ")"},
 		{SEMICOLON, ";"},
-		
+
 		{IDENT, "balances"},
 		{LBRACKET, "["},
 		{IDENT, "msg"},
@@ -221,7 +221,7 @@ func TestNextToken(t *testing.T) {
 		{ASSIGN, "="},
 		{IDENT, "amount"},
 		{SEMICOLON, ";"},
-		
+
 		{IDENT, "balances"},
 		{LBRACKET, "["},
 		{IDENT, "to"},
@@ -230,7 +230,7 @@ func TestNextToken(t *testing.T) {
 		{ASSIGN, "="},
 		{IDENT, "amount"},
 		{SEMICOLON, ";"},
-		
+
 		{EMIT, "emit"},
 		{IDENT, "Transfer"},
 		{LPAREN, "("},
@@ -244,7 +244,7 @@ func TestNextToken(t *testing.T) {
 		{RPAREN, ")"},
 		{SEMICOLON, ";"},
 		{RBRACE, "}"},
-		
+
 		{EVENT, "event"},
 		{IDENT, "Transfer"},
 		{LPAREN, "("},
@@ -261,7 +261,7 @@ func TestNextToken(t *testing.T) {
 		{IDENT, "Int"},
 		{RPAREN, ")"},
 		{RBRACE, "}"},
-		
+
 		{EOF, ""},
 	}
 
@@ -280,4 +280,4 @@ func TestNextToken(t *testing.T) {
 				i, tt.expectedLiteral, tok.Literal)
 		}
 	}
-} 
+}

@@ -4,7 +4,6 @@
 *.dll
 *.so
 *.dylib
-stremax
 
 # Test binary, built with `go test -c`
 *.test
