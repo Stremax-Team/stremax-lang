@@ -28,10 +28,7 @@ jobs:
           go-version: 1.19
           cache: true  # Enable cache now that we have a go.sum file
 
-      # Skip go mod download since we don't have external dependencies yet
-      # If we add dependencies later, we can uncomment this
-      # - name: Download dependencies
-      #   run: go mod download
+      # We don't need go mod download since we don't have external dependencies
 
       - name: Build
         run: go build -v ./cmd/stremax
@@ -47,7 +44,6 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: build
     
     steps:
       - name: Checkout code
@@ -146,7 +142,6 @@ jobs:
     name: Benchmarks
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: test
     
     steps:
       - name: Checkout code
