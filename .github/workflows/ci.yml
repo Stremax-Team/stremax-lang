@@ -19,11 +19,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Create empty go.sum if it doesn't exist
+        run: touch go.sum
+
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-          cache: true
+          cache: true  # Enable cache now that we have a go.sum file
 
       # Skip go mod download since we don't have external dependencies yet
       # If we add dependencies later, we can uncomment this
@@ -34,7 +37,7 @@ jobs:
         run: go build -v ./cmd/stremax
 
       - name: Upload binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2  # Use v2 for compatibility
         with:
           name: stremax-binary
           path: ./stremax
@@ -50,11 +53,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Create empty go.sum if it doesn't exist
+        run: touch go.sum
+
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-          cache: true
+          cache: true  # Enable cache now that we have a go.sum file
 
       - name: Run unit tests
         run: go test -v ./...
@@ -66,7 +72,7 @@ jobs:
         run: go test -coverprofile=coverage.out -covermode=atomic ./...
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2  # Use v2 for compatibility
         with:
           name: coverage-report
           path: ./coverage.out
@@ -81,11 +87,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Create empty go.sum if it doesn't exist
+        run: touch go.sum
+
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-          cache: true
+          cache: true  # Enable cache now that we have a go.sum file
 
       - name: Install golint
         run: go install golang.org/x/lint/golint@latest
@@ -116,7 +125,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download binary
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v2  # Use v2 for compatibility
         with:
           name: stremax-binary
           path: .
@@ -143,17 +152,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Create empty go.sum if it doesn't exist
+        run: touch go.sum
+
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-          cache: true
+          cache: true  # Enable cache now that we have a go.sum file
 
       - name: Run benchmarks
         run: go test -bench=. -benchmem ./... > benchmark-result.txt
 
       - name: Upload benchmark results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2  # Use v2 for compatibility
         with:
           name: benchmark-results
           path: ./benchmark-result.txt
