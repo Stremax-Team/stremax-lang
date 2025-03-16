@@ -1,5 +1,11 @@
 # Stremax-Lang
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/Stremax-Team/stremax-lang.svg)](https://pkg.go.dev/github.com/Stremax-Team/stremax-lang)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Stremax-Team/stremax-lang)](https://goreportcard.com/report/github.com/Stremax-Team/stremax-lang)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub release](https://img.shields.io/github/release/Stremax-Team/stremax-lang.svg)](https://github.com/Stremax-Team/stremax-lang/releases)
+[![Build Status](https://github.com/Stremax-Team/stremax-lang/workflows/Go/badge.svg)](https://github.com/Stremax-Team/stremax-lang/actions)
+
 Stremax-Lang is a simple programming language designed specifically for blockchain development and smart contract execution. It provides a clean syntax and built-in primitives for common blockchain operations.
 
 ## Features
@@ -163,6 +169,27 @@ go build -o stremax ./cmd/stremax
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Documentation
+
+The API documentation is available on [pkg.go.dev](https://pkg.go.dev/github.com/Stremax-Team/stremax-lang). This documentation is automatically generated from the code comments.
+
+To write good documentation comments:
+
+1. Every exported function, type, and variable should have a comment
+2. Comments for functions should explain what the function does, its parameters, and its return values
+3. Use complete sentences that start with the name of the thing being described
+4. Follow the [Go Documentation Comments](https://go.dev/doc/comment) guidelines
+
+Example of a well-documented function:
+
+```go
+// ParseProgram parses the input source code and returns an AST representation.
+// It returns nil and populates the Errors slice if any parsing errors occur.
+func (p *Parser) ParseProgram() *Program {
+    // Implementation...
+}
+```
 
 ## License
 

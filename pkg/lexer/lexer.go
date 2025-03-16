@@ -5,7 +5,10 @@ import (
 	"unicode/utf8"
 )
 
-// Lexer represents a lexical analyzer
+// Lexer represents a lexical analyzer for Stremax-Lang.
+// It transforms source code into a stream of tokens that can be
+// processed by the parser. The lexer tracks position information
+// for error reporting and handles UTF-8 encoded input.
 type Lexer struct {
 	input        string
 	position     int  // current position in input (points to current char)
@@ -15,7 +18,15 @@ type Lexer struct {
 	column       int  // current column number
 }
 
-// New creates a new Lexer
+// New creates a new Lexer for the given input string.
+// It initializes the lexer state and reads the first character
+// to prepare for tokenization.
+//
+// Parameters:
+//   - input: The source code to tokenize
+//
+// Returns:
+//   - A new Lexer instance ready to produce tokens
 func New(input string) *Lexer {
 	l := &Lexer{
 		input:  input,
@@ -48,7 +59,14 @@ func (l *Lexer) peekChar() rune {
 	return r
 }
 
-// NextToken returns the next token from the input
+// NextToken returns the next token from the input source code.
+// It analyzes the current character, determines the appropriate token type,
+// and advances the lexer position. The function handles operators, delimiters,
+// identifiers, keywords, numbers, and strings according to Stremax-Lang syntax.
+// It also tracks line and column information for error reporting.
+//
+// Returns:
+//   - A Token struct containing the token type, literal value, and position information
 func (l *Lexer) NextToken() Token {
 	var tok Token
 

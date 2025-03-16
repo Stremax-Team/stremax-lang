@@ -8,9 +8,14 @@ import (
 	"github.com/Stremax-Team/stremax-lang/pkg/parser"
 )
 
-// Object represents a runtime value
+// Object represents a runtime value in the Stremax-Lang interpreter.
+// All values in Stremax-Lang implement this interface, which provides
+// methods for type identification and string representation.
 type Object interface {
+	// Type returns the type of the object as a string.
 	Type() string
+	
+	// Inspect returns a string representation of the object.
 	Inspect() string
 }
 
@@ -94,7 +99,9 @@ func (e *Environment) Set(name string, val Object) Object {
 	return val
 }
 
-// Interpreter represents an interpreter for Stremax-Lang
+// Interpreter represents an interpreter for Stremax-Lang.
+// It handles lexing, parsing, and evaluating Stremax-Lang code,
+// maintaining the execution environment and blockchain state.
 type Interpreter struct {
 	source string
 	lexer  *lexer.Lexer
@@ -103,7 +110,15 @@ type Interpreter struct {
 	bc     *blockchain.Blockchain
 }
 
-// New creates a new interpreter
+// New creates a new Stremax-Lang interpreter with the given source code.
+// It initializes the lexer, parser, environment, and blockchain components
+// needed for execution.
+//
+// Parameters:
+//   - source: The Stremax-Lang source code to interpret
+//
+// Returns:
+//   - A new Interpreter instance ready to execute the provided code
 func New(source string) *Interpreter {
 	l := lexer.New(source)
 	p := parser.New(l)
@@ -117,7 +132,12 @@ func New(source string) *Interpreter {
 	}
 }
 
-// Run executes the source code
+// Run executes the Stremax-Lang source code provided to the interpreter.
+// It parses the program, evaluates it, and returns any errors encountered
+// during execution.
+//
+// Returns:
+//   - An error if parsing or evaluation fails, nil otherwise
 func (i *Interpreter) Run() error {
 	// Parse the program
 	program := i.parser.ParseProgram()

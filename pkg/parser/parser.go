@@ -35,7 +35,11 @@ var precedences = map[lexer.TokenType]int{
 	lexer.DOT:      DOT,
 }
 
-// Parser represents a parser
+// Parser represents a parser for Stremax-Lang.
+// It implements a recursive descent parser with Pratt parsing for expressions,
+// which allows for handling operator precedence and various expression types.
+// The parser builds an abstract syntax tree (AST) from the token stream
+// provided by the lexer.
 type Parser struct {
 	l         *lexer.Lexer
 	errors    []string
@@ -51,7 +55,15 @@ type (
 	infixParseFn  func(Expression) Expression
 )
 
-// New creates a new parser
+// New creates a new Parser with the given lexer.
+// It initializes the parser state, reads the first two tokens,
+// and registers all the parsing functions for different expression types.
+//
+// Parameters:
+//   - l: The lexer that provides the token stream
+//
+// Returns:
+//   - A new Parser instance ready to parse Stremax-Lang code
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
 		l:      l,
@@ -91,7 +103,12 @@ func New(l *lexer.Lexer) *Parser {
 	return p
 }
 
-// Errors returns parser errors
+// Errors returns all errors encountered during parsing.
+// This can be used to check if parsing was successful and
+// to report any syntax errors to the user.
+//
+// Returns:
+//   - A slice of error messages as strings
 func (p *Parser) Errors() []string {
 	return p.errors
 }
@@ -102,7 +119,15 @@ func (p *Parser) nextToken() {
 	p.peekToken = p.l.NextToken()
 }
 
-// ParseProgram parses a program
+// ParseProgram parses a complete Stremax-Lang program.
+// It processes the token stream until it reaches the end of file,
+// building an abstract syntax tree (AST) representation of the program.
+// The function handles all statement types in the language and
+// collects any parsing errors encountered.
+//
+// Returns:
+//   - A Program struct containing the AST of the parsed program
+//   - If parsing errors occur, they can be retrieved using the Errors() method
 func (p *Parser) ParseProgram() *Program {
 	program := &Program{
 		Statements: []Statement{},
