@@ -15,7 +15,7 @@ func main() {
 
 	// Check if a command was provided
 	if len(os.Args) < 2 {
-		fmt.Println("Expected 'run' subcommand")
+		printHelp()
 		os.Exit(1)
 	}
 
@@ -28,10 +28,20 @@ func main() {
 			os.Exit(1)
 		}
 		runProgram(*runFile)
+	case "--help", "-h", "help":
+		printHelp()
 	default:
 		fmt.Printf("Unknown command: %s\n", os.Args[1])
+		printHelp()
 		os.Exit(1)
 	}
+}
+
+func printHelp() {
+	fmt.Println("Stremax-Lang Interpreter")
+	fmt.Println("Usage:")
+	fmt.Println("  stremax run -file <filename>  Run a Stremax-Lang program")
+	fmt.Println("  stremax help                  Show this help message")
 }
 
 func runProgram(filePath string) {

@@ -69,6 +69,14 @@ jobs:
     - name: Build
       run: go build -v -o stremax ./cmd/stremax
 
+    - name: Debug binary
+      run: |
+        ls -la
+        file ./stremax
+        ldd ./stremax || echo "ldd not available"
+        ./stremax help || echo "Help command failed"
+        ls -la ./examples/
+
     - name: Run example programs
       run: |
         chmod +x ./stremax

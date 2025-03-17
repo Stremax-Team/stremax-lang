@@ -49,6 +49,11 @@ jobs:
         run: |
           go build -o stremax ./cmd/stremax
           chmod +x ./stremax
+          ls -la
+          file ./stremax
+          ldd ./stremax || echo "ldd not available"
+          ./stremax help || echo "Help command failed"
+          ls -la ./examples/
           ./stremax run -file ./examples/simple.sx
           ./stremax run -file ./examples/arithmetic.sx
           ./stremax run -file ./examples/strings.sx
