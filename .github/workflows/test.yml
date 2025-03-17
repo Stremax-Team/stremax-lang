@@ -77,6 +77,8 @@ jobs:
         ./stremax run -file ./examples/conditionals.sx
         ./stremax run -file ./examples/boolean.sx
         ./stremax run -file ./examples/combined.sx
+        ./stremax run -file ./examples/simple_logical.sx
+        ./stremax run -file ./examples/logical.sx
         # Skip examples that are expected to fail
         # ./stremax run -file ./examples/errors.sx
 
