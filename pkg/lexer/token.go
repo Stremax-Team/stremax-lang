@@ -35,6 +35,10 @@ const (
 	EQ    = "=="
 	NotEq = "!="
 
+	// Logical operators
+	AND = "&&"
+	OR  = "||"
+
 	// Delimiters
 	COMMA     = ","
 	SEMICOLON = ";"

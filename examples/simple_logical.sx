@@ -1,0 +1,4 @@
+// Simple logical operators test
+let a = true;
+let b = false;
+a && b; 

@@ -1,0 +1,33 @@
+// Logical operators example
+let a = 10;
+let b = 5;
+
+// Comparison operators
+let isGreater = a > b;
+let isLess = a < b;
+let isEqual = a == b;
+let isNotEqual = a != b;
+
+// Logical operators
+let andResult = isGreater && !isLess;  // true AND true = true
+let orResult = isLess || isNotEqual;   // false OR true = true
+let mixedResult = isEqual || (isGreater && isNotEqual);  // false OR (true AND true) = true
+
+// Short-circuit evaluation
+let shortCircuitAnd = false && (10 / 0 > 0);  // false AND (error) = false (no error due to short-circuit)
+let shortCircuitOr = true || (10 / 0 > 0);    // true OR (error) = true (no error due to short-circuit)
+
+// Complex logical expressions
+let complex1 = (a > 5) && (b < 10) && (a != b);  // true AND true AND true = true
+let complex2 = (a < 5) || (b > 10) || (a == b);  // false OR false OR false = false
+let complex3 = (a > 5) && ((b > 10) || (a != b));  // true AND (false OR true) = true
+
+// Print results
+andResult;     // Should be true
+orResult;      // Should be true
+mixedResult;   // Should be true
+shortCircuitAnd;  // Should be false
+shortCircuitOr;   // Should be true
+complex1;      // Should be true
+complex2;      // Should be false
+complex3;      // Should be true 

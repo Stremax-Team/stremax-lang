@@ -221,12 +221,22 @@ func (i *Interpreter) evalBlockStatement(block *parser.BlockStatement) (Object, 
 	var result Object
 	var err error
 
+	// Create a new enclosed environment for this block
+	previousEnv := i.env
+	blockEnv := NewEnclosedEnvironment(i.env)
+	i.env = blockEnv
+
+	// Evaluate statements in the block environment
 	for _, stmt := range block.Statements {
 		result, err = i.evalStatement(stmt)
 		if err != nil {
+			i.env = previousEnv // Restore the previous environment in case of error
 			return nil, err
 		}
 	}
+
+	// Restore the previous environment
+	i.env = previousEnv
 
 	return result, nil
 }
@@ -307,6 +317,11 @@ func (i *Interpreter) evalMinusPrefixOperatorExpression(right Object) (Object, e
 
 // evalInfixExpression evaluates an infix expression
 func (i *Interpreter) evalInfixExpression(expr *parser.InfixExpression) (Object, error) {
+	// Special handling for short-circuit logical operators
+	if expr.Operator == "&&" || expr.Operator == "||" {
+		return i.evalLogicalExpression(expr)
+	}
+
 	left, err := i.evalExpression(expr.Left)
 	if err != nil {
 		return nil, err
@@ -333,6 +348,65 @@ func (i *Interpreter) evalInfixExpression(expr *parser.InfixExpression) (Object,
 			expr.Token.Column,
 			"",
 		)
+	}
+}
+
+// evalLogicalExpression evaluates a logical expression with short-circuit evaluation
+func (i *Interpreter) evalLogicalExpression(expr *parser.InfixExpression) (Object, error) {
+	// Evaluate the left operand
+	left, err := i.evalExpression(expr.Left)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if left operand is a boolean
+	if left.Type() != "BOOLEAN" {
+		return nil, errors.NewTypeError(
+			fmt.Sprintf("Left operand of %s must be a boolean, got %s", expr.Operator, left.Type()),
+			expr.Token.Line,
+			expr.Token.Column,
+			"",
+		)
+	}
+
+	leftBool := left.(*Boolean).Value
+
+	// Short-circuit evaluation
+	if expr.Operator == "&&" {
+		// If left is false, return false without evaluating right
+		if !leftBool {
+			return &Boolean{Value: false}, nil
+		}
+	} else if expr.Operator == "||" {
+		// If left is true, return true without evaluating right
+		if leftBool {
+			return &Boolean{Value: true}, nil
+		}
+	}
+
+	// Evaluate the right operand
+	right, err := i.evalExpression(expr.Right)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if right operand is a boolean
+	if right.Type() != "BOOLEAN" {
+		return nil, errors.NewTypeError(
+			fmt.Sprintf("Right operand of %s must be a boolean, got %s", expr.Operator, right.Type()),
+			expr.Token.Line,
+			expr.Token.Column,
+			"",
+		)
+	}
+
+	rightBool := right.(*Boolean).Value
+
+	// Determine the result based on the operator
+	if expr.Operator == "&&" {
+		return &Boolean{Value: leftBool && rightBool}, nil
+	} else { // expr.Operator == "||"
+		return &Boolean{Value: leftBool || rightBool}, nil
 	}
 }
 

@@ -114,6 +114,22 @@ func (l *Lexer) NextToken() Token {
 		tok = newToken(LT, l.ch)
 	case '>':
 		tok = newToken(GT, l.ch)
+	case '&':
+		if l.peekChar() == '&' {
+			ch := l.ch
+			l.readChar()
+			tok = Token{Type: AND, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(ILLEGAL, l.ch)
+		}
+	case '|':
+		if l.peekChar() == '|' {
+			ch := l.ch
+			l.readChar()
+			tok = Token{Type: OR, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(ILLEGAL, l.ch)
+		}
 	case ';':
 		tok = newToken(SEMICOLON, l.ch)
 	case ':':

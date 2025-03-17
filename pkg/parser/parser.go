@@ -10,6 +10,7 @@ import (
 const (
 	_ int = iota
 	LOWEST
+	LOGICAL     // && or ||
 	EQUALS      // ==
 	LESSGREATER // > or <
 	SUM         // +
@@ -30,6 +31,8 @@ var precedences = map[lexer.TokenType]int{
 	lexer.MINUS:    SUM,
 	lexer.SLASH:    PRODUCT,
 	lexer.ASTERISK: PRODUCT,
+	lexer.AND:      LOGICAL,
+	lexer.OR:       LOGICAL,
 	lexer.LPAREN:   CALL,
 	lexer.LBRACKET: INDEX,
 	lexer.DOT:      DOT,
@@ -96,6 +99,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(lexer.NotEq, p.parseInfixExpression)
 	p.registerInfix(lexer.LT, p.parseInfixExpression)
 	p.registerInfix(lexer.GT, p.parseInfixExpression)
+	p.registerInfix(lexer.AND, p.parseInfixExpression)
+	p.registerInfix(lexer.OR, p.parseInfixExpression)
 	p.registerInfix(lexer.LPAREN, p.parseCallExpression)
 	p.registerInfix(lexer.LBRACKET, p.parseIndexExpression)
 	p.registerInfix(lexer.DOT, p.parseDotExpression)

@@ -15,6 +15,8 @@ Stremax-Lang is a simple programming language designed specifically for blockcha
 - Smart contract support
 - Type safety for blockchain operations
 - Easy integration with existing blockchain platforms
+- Proper block scoping for variables
+- Logical operators with short-circuit evaluation
 
 ## Current Implementation Status
 
@@ -24,6 +26,12 @@ Stremax-Lang is a simple programming language designed specifically for blockcha
 - ✅ Blockchain: Basic blockchain implementation with blocks, transactions, and mining
 - ✅ Smart Contracts: Basic smart contract implementation with state, functions, and events
 - ✅ CLI: Command-line interface for running Stremax-Lang programs
+
+## Recent Improvements
+
+- ✅ Block Scoping: Variables defined in blocks are now properly scoped
+- ✅ Boolean Literals: Direct support for boolean literals (true/false)
+- ✅ Logical Operators: Support for logical AND (&&) and OR (||) with short-circuit evaluation
 
 ## Project Structure
 
@@ -77,6 +85,12 @@ contract TokenContract {
 - `Bool`: Boolean values (true/false)
 - `Address`: Blockchain addresses
 
+### Operators
+
+- **Arithmetic**: `+`, `-`, `*`, `/`
+- **Comparison**: `==`, `!=`, `<`, `>`
+- **Logical**: `&&` (AND), `||` (OR), `!` (NOT)
+
 ### Blockchain-Specific Types
 
 - `Address`: Represents a blockchain address
@@ -127,17 +141,22 @@ contract ContractName {
 
 ## Examples
 
-### Token Contract
+### Basic Examples
 
-See [examples/token.sx](examples/token.sx) for a complete ERC20-like token implementation.
+See the [examples](examples/) directory for basic examples demonstrating language features:
+- Variable assignment and arithmetic
+- String operations
+- Conditional expressions
+- Boolean operations and logical operators
+- Error handling
+- Block scoping
 
-### Voting Contract
+### Advanced Examples
 
-See [examples/voting.sx](examples/voting.sx) for a voting contract implementation.
-
-### Auction Contract
-
-See [examples/auction.sx](examples/auction.sx) for an auction contract implementation.
+See these examples for more complex use cases (not fully supported yet):
+- [examples/token.sx](examples/token.sx): An ERC20-like token implementation
+- [examples/voting.sx](examples/voting.sx): A voting contract implementation
+- [examples/auction.sx](examples/auction.sx): An auction contract implementation
 
 ## Getting Started
 
