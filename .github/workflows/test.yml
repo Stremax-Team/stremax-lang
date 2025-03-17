@@ -19,13 +19,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Create empty go.sum if it doesn't exist
+      run: touch go.sum
+
     - name: Set up Go ${{ matrix.go-version }}
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
-
-    - name: Install dependencies
-      run: go mod download
+        cache: true
 
     - name: Run unit tests
       run: go test -v ./...
@@ -36,11 +37,8 @@ jobs:
     - name: Run tests with coverage
       run: go test -coverprofile=coverage.out -covermode=atomic ./...
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.out
-        fail_ci_if_error: false
+    - name: Display coverage
+      run: go tool cover -func=coverage.out
 
   integration-test:
     name: Integration Tests
@@ -50,10 +48,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Create empty go.sum if it doesn't exist
+      run: touch go.sum
+
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.21
+        cache: true
 
     - name: Build
       run: go build -v -o stremax ./cmd/stremax
@@ -77,10 +79,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Create empty go.sum if it doesn't exist
+      run: touch go.sum
+
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.21
+        cache: true
 
     - name: Run benchmarks
-      run: go test -bench=. -benchmem ./... 
+      run: go test -bench=. -benchmem ./... > benchmark-result.txt
+
+    - name: Display benchmark results
+      run: cat benchmark-result.txt 

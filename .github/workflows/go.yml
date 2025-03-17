@@ -12,10 +12,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Create empty go.sum if it doesn't exist
+      run: touch go.sum
+
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.21
+        cache: true
 
     - name: Build
       run: go build -v ./cmd/stremax
@@ -28,10 +32,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Create empty go.sum if it doesn't exist
+      run: touch go.sum
+
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.21
+        cache: true
 
     - name: Install golint
       run: go install golang.org/x/lint/golint@latest
