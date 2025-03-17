@@ -71,6 +71,7 @@ jobs:
 
     - name: Run example programs
       run: |
+        chmod +x ./stremax
         ./stremax run -file ./examples/simple.sx
         ./stremax run -file ./examples/arithmetic.sx
         ./stremax run -file ./examples/strings.sx

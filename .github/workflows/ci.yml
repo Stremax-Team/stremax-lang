@@ -47,6 +47,7 @@ jobs:
 
       - name: Run example programs
         run: |
+          go build -o stremax ./cmd/stremax
           chmod +x ./stremax
           ./stremax run -file ./examples/simple.sx
           ./stremax run -file ./examples/arithmetic.sx
