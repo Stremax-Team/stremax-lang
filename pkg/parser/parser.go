@@ -23,19 +23,21 @@ const (
 
 // Operator precedence map
 var precedences = map[lexer.TokenType]int{
-	lexer.EQ:       EQUALS,
-	lexer.NotEq:    EQUALS,
-	lexer.LT:       LESSGREATER,
-	lexer.GT:       LESSGREATER,
-	lexer.PLUS:     SUM,
-	lexer.MINUS:    SUM,
-	lexer.SLASH:    PRODUCT,
-	lexer.ASTERISK: PRODUCT,
-	lexer.AND:      LOGICAL,
-	lexer.OR:       LOGICAL,
-	lexer.LPAREN:   CALL,
-	lexer.LBRACKET: INDEX,
-	lexer.DOT:      DOT,
+	lexer.EQ:         EQUALS,
+	lexer.NotEq:      EQUALS,
+	lexer.LT:         LESSGREATER,
+	lexer.GT:         LESSGREATER,
+	lexer.LessEq:     LESSGREATER,
+	lexer.GreaterEq:  LESSGREATER,
+	lexer.PLUS:       SUM,
+	lexer.MINUS:      SUM,
+	lexer.SLASH:      PRODUCT,
+	lexer.ASTERISK:   PRODUCT,
+	lexer.AND:        LOGICAL,
+	lexer.OR:         LOGICAL,
+	lexer.LPAREN:     CALL,
+	lexer.LBRACKET:   INDEX,
+	lexer.DOT:        DOT,
 }
 
 // Parser represents a parser for Stremax-Lang.
@@ -88,6 +90,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(lexer.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(lexer.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(lexer.IF, p.parseIfExpression)
+	p.registerPrefix(lexer.FUNCTION, p.parseFunctionLiteral)
 
 	// Register infix parse functions
 	p.infixParseFns = make(map[lexer.TokenType]infixParseFn)
@@ -99,6 +102,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(lexer.NotEq, p.parseInfixExpression)
 	p.registerInfix(lexer.LT, p.parseInfixExpression)
 	p.registerInfix(lexer.GT, p.parseInfixExpression)
+	p.registerInfix(lexer.LessEq, p.parseInfixExpression)
+	p.registerInfix(lexer.GreaterEq, p.parseInfixExpression)
 	p.registerInfix(lexer.AND, p.parseInfixExpression)
 	p.registerInfix(lexer.OR, p.parseInfixExpression)
 	p.registerInfix(lexer.LPAREN, p.parseCallExpression)
@@ -790,4 +795,68 @@ func (p *Parser) parseDotExpression(left Expression) Expression {
 	expression.Right = p.parseIdentifier()
 
 	return expression
+}
+
+// parseFunctionLiteral parses a function literal expression (e.g., function(a, b) { a + b; })
+func (p *Parser) parseFunctionLiteral() Expression {
+	lit := &FunctionLiteral{Token: p.curToken}
+
+	if !p.expectPeek(lexer.LPAREN) {
+		return nil
+	}
+
+	// Parse parameters as identifiers
+	parameters := []*ParameterStatement{}
+	
+	// Handle empty parameter list
+	if !p.peekTokenIs(lexer.RPAREN) {
+		p.nextToken() // Skip the left paren
+		
+		// First parameter
+		param := &ParameterStatement{
+			Token: p.curToken,
+			Name: &Identifier{
+				Token: p.curToken,
+				Value: p.curToken.Literal,
+			},
+		}
+		parameters = append(parameters, param)
+		
+		// Additional parameters
+		for p.peekTokenIs(lexer.COMMA) {
+			p.nextToken() // Skip the comma
+			p.nextToken() // Move to the parameter name
+			
+			param := &ParameterStatement{
+				Token: p.curToken,
+				Name: &Identifier{
+					Token: p.curToken,
+					Value: p.curToken.Literal,
+				},
+			}
+			parameters = append(parameters, param)
+		}
+	}
+	
+	if !p.expectPeek(lexer.RPAREN) {
+		return nil
+	}
+	
+	lit.Parameters = parameters
+
+	// Skip return type for now, we'll add it later if needed
+	// Check for return type
+	if p.peekTokenIs(lexer.COLON) {
+		p.nextToken() // Skip the colon
+		p.nextToken() // Move to the type
+		lit.ReturnType = p.parseTypeExpression()
+	}
+
+	if !p.expectPeek(lexer.LBRACE) {
+		return nil
+	}
+
+	lit.Body = p.parseBlockStatement()
+
+	return lit
 }

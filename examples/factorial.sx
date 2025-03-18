@@ -1,0 +1,13 @@
+// Factorial function example
+
+// Simple factorial function
+let factorial = function(n) {
+  if (n <= 1) {
+    return 1;
+  } else {
+    return n * factorial(n - 1);
+  }
+};
+
+// Calculate factorial of 5
+factorial(5);  // Should be 120 

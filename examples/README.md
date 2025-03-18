@@ -13,6 +13,9 @@ These examples demonstrate the basic features of Stremax-Lang that are currently
 - **boolean.sx**: Tests boolean operations and comparisons.
 - **logical.sx**: Demonstrates logical operators (&&, ||) with short-circuit evaluation.
 - **simple_logical.sx**: A minimal example of logical operators.
+- **functions_simple.sx**: Basic function declarations and calls.
+- **factorial.sx**: Recursive functions with the factorial example.
+- **functions_advanced.sx**: Advanced functions including closures.
 - **combined.sx**: Combines various features in one example.
 - **errors.sx**: Demonstrates error handling (division by zero).
 - **scoping.sx**: Tests variable scoping.
@@ -41,16 +44,16 @@ The current implementation has the following limitations:
 
 1. No support for contract syntax and blockchain-specific features.
 2. Limited type system (no custom types or type annotations).
-3. No support for functions or function calls.
-4. No support for arrays or maps.
-5. String and integer concatenation is not supported.
-6. Only the last expression's result is returned.
-7. No debugging or verbose output options in the CLI.
+3. No support for arrays or maps.
+4. String and integer concatenation is not fully supported.
+5. Only the last expression's result is returned.
+6. No debugging or verbose output options in the CLI.
 
 ## Recent Improvements
 
 1. **Block Scoping**: Variables defined in blocks are now properly scoped and not accessible outside their blocks.
 2. **Boolean Literals**: Direct support for boolean literals (true/false) has been added.
 3. **Logical Operators**: Support for logical AND (&&) and OR (||) operators with short-circuit evaluation has been implemented.
+4. **Functions**: Full support for function declarations, function calls, closures, and recursion has been added.
 
 These limitations will be addressed in future versions of Stremax-Lang. 

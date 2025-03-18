@@ -32,6 +32,7 @@ Stremax-Lang is a simple programming language designed specifically for blockcha
 - ✅ Block Scoping: Variables defined in blocks are now properly scoped
 - ✅ Boolean Literals: Direct support for boolean literals (true/false)
 - ✅ Logical Operators: Support for logical AND (&&) and OR (||) with short-circuit evaluation
+- ✅ Functions: Support for function declarations, calls, closures, and recursion
 
 ## Project Structure
 

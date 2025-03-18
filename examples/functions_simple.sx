@@ -1,0 +1,22 @@
+ // Simple Functions Example
+
+// Function declaration and assignment
+let add = function(a, b) {
+  return a + b;
+};
+
+// Function call
+let result = add(5, 10);
+
+// Function with conditionals
+let max = function(a, b) {
+  if (a > b) {
+    return a;
+  } else {
+    return b;
+  }
+};
+
+// Display results
+result;        // Should be 15
+max(20, 15);   // Should be 20

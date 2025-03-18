@@ -1,0 +1,31 @@
+// Advanced Functions Example
+
+// Basic function declaration and assignment
+let add = function(a, b) {
+  return a + b;
+};
+
+// Closures - functions that capture their environment
+let makeAdder = function(x) {
+  return function(y) {
+    return x + y;
+  };
+};
+
+let addFive = makeAdder(5);
+let result1 = addFive(10);
+
+// Recursive function
+let factorial = function(n) {
+  if (n <= 1) {
+    return 1;
+  } else {
+    return n * factorial(n - 1);
+  }
+};
+
+let result2 = factorial(5);
+
+// Display results
+result1;  // Should be 15
+result2;  // Should be 120 

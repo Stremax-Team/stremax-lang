@@ -111,9 +111,21 @@ func (l *Lexer) NextToken() Token {
 	case '*':
 		tok = newToken(ASTERISK, l.ch)
 	case '<':
-		tok = newToken(LT, l.ch)
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			tok = Token{Type: LessEq, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(LT, l.ch)
+		}
 	case '>':
-		tok = newToken(GT, l.ch)
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			tok = Token{Type: GreaterEq, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(GT, l.ch)
+		}
 	case '&':
 		if l.peekChar() == '&' {
 			ch := l.ch

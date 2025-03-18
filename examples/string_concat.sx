@@ -1,0 +1,48 @@
+// String concatenation example showing all supported operations
+
+// Basic string concatenation
+let greeting = "Hello";
+let name = "World";
+let message = greeting + " " + name;
+
+// String + integer concatenation
+let age = 25;
+let ageMessage = "Age: " + age;
+
+// String + boolean concatenation
+let isStudent = true;
+let statusMessage = "Is a student: " + isStudent;
+
+// Integer + string concatenation
+let score = 95;
+let scoreMessage = score + " points";
+
+// Boolean + string concatenation
+let passed = true;
+let resultMessage = passed + " - Test passed";
+
+// Complex concatenation with multiple types
+let details = "Name: " + name + ", Age: " + age;
+
+// Concatenation with expressions
+let mathResult = "2 + 2 = " + (2 + 2);
+let comparisonResult = "Is 5 greater than 3? " + (5 > 3);
+
+// Concatenation with conditional results
+let weather = "sunny";
+let forecast = "Today will be " + if (weather == "sunny") {
+  "warm and bright"
+} else {
+  "possibly cloudy"
+};
+
+// Print all results
+message;         // Should be "Hello World"
+ageMessage;      // Should be "Age: 25"
+statusMessage;   // Should be "Is a student: true"
+scoreMessage;    // Should be "95 points"
+resultMessage;   // Should be "true - Test passed"
+details;         // Should be "Name: World, Age: 25"
+mathResult;      // Should be "2 + 2 = 4"
+comparisonResult; // Should be "Is 5 greater than 3? true"
+forecast;        // Should be "Today will be warm and bright" 

@@ -1,0 +1,70 @@
+// Functions in Stremax-Lang
+
+// Basic function declaration
+function add(a, b) {
+  return a + b;
+}
+
+// Function call
+let result = add(5, 10);
+
+// Functions can be passed as arguments
+function applyOperation(x, y, operation) {
+  return operation(x, y);
+}
+
+function multiply(a, b) {
+  return a * b;
+}
+
+let calcResult = applyOperation(5, 3, multiply);
+
+// Closures - functions that capture their environment
+function makeGreeter(greeting) {
+  function greet(name) {
+    return greeting + ", " + name + "!";
+  }
+  return greet;
+}
+
+let sayHello = makeGreeter("Hello");
+let greeting = sayHello("World");
+
+// Recursive functions
+function factorial(n) {
+  if (n <= 1) {
+    return 1;
+  } else {
+    return n * factorial(n - 1);
+  }
+}
+
+let factorialResult = factorial(5);
+
+// Functions with conditionals
+function max(a, b) {
+  if (a > b) {
+    return a;
+  } else {
+    return b;
+  }
+}
+
+let maxValue = max(20, 15);
+
+// Function that returns multiple values (as a string)
+function divideWithRemainder(a, b) {
+  let quotient = a / b;
+  let remainder = a - (quotient * b);
+  return "Quotient: " + quotient + ", Remainder: " + remainder;
+}
+
+let divisionResult = divideWithRemainder(17, 4);
+
+// Print results
+result;           // Should be 15
+calcResult;       // Should be 15
+greeting;         // Should be "Hello, World!"
+factorialResult;  // Should be 120
+maxValue;         // Should be 20
+divisionResult;   // Should be "Quotient: 4, Remainder: 1" 

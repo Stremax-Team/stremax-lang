@@ -30,10 +30,12 @@ const (
 	ASTERISK = "*"
 	SLASH    = "/"
 
-	LT    = "<"
-	GT    = ">"
-	EQ    = "=="
-	NotEq = "!="
+	LT         = "<"
+	GT         = ">"
+	LessEq     = "<="
+	GreaterEq  = ">="
+	EQ         = "=="
+	NotEq      = "!="
 
 	// Logical operators
 	AND = "&&"

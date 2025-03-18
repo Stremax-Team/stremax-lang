@@ -63,6 +63,34 @@ func (a *Address) Type() string { return "ADDRESS" }
 // Inspect returns a string representation of the Address object
 func (a *Address) Inspect() string { return string(a.Value) }
 
+// Function represents a function definition
+type Function struct {
+	Parameters []*parser.ParameterStatement
+	Body       *parser.BlockStatement
+	ReturnType *parser.TypeExpression
+	Env        *Environment
+	Name       string // Optional, for named functions
+}
+
+// Type returns the type of the Function object
+func (f *Function) Type() string { return "FUNCTION" }
+
+// Inspect returns a string representation of the Function object
+func (f *Function) Inspect() string {
+	return fmt.Sprintf("function %s", f.Name)
+}
+
+// ReturnValue represents a value returned from a function
+type ReturnValue struct {
+	Value Object
+}
+
+// Type returns the type of the ReturnValue object
+func (rv *ReturnValue) Type() string { return "RETURN_VALUE" }
+
+// Inspect returns a string representation of the ReturnValue object
+func (rv *ReturnValue) Inspect() string { return rv.Value.Inspect() }
+
 // Environment represents a variable environment
 type Environment struct {
 	store map[string]Object
@@ -213,7 +241,13 @@ func (i *Interpreter) evalLetStatement(stmt *parser.LetStatement) (Object, error
 
 // evalReturnStatement evaluates a return statement
 func (i *Interpreter) evalReturnStatement(stmt *parser.ReturnStatement) (Object, error) {
-	return i.evalExpression(stmt.ReturnValue)
+	value, err := i.evalExpression(stmt.ReturnValue)
+	if err != nil {
+		return nil, err
+	}
+	
+	// Wrap the return value
+	return &ReturnValue{Value: value}, nil
 }
 
 // evalBlockStatement evaluates a block statement
@@ -232,6 +266,12 @@ func (i *Interpreter) evalBlockStatement(block *parser.BlockStatement) (Object, 
 		if err != nil {
 			i.env = previousEnv // Restore the previous environment in case of error
 			return nil, err
+		}
+		
+		// Check if it's a return value, if so, return early
+		if result != nil && result.Type() == "RETURN_VALUE" {
+			i.env = previousEnv // Restore the previous environment
+			return result, nil
 		}
 	}
 
@@ -255,6 +295,10 @@ func (i *Interpreter) evalExpression(expr parser.Expression) (Object, error) {
 	case *parser.PrefixExpression:
 		return i.evalPrefixExpression(e)
 	case *parser.InfixExpression:
+		// Handle logical operators with short-circuit evaluation
+		if e.Operator == "&&" || e.Operator == "||" {
+			return i.evalLogicalExpression(e)
+		}
 		return i.evalInfixExpression(e)
 	case *parser.IfExpression:
 		return i.evalIfExpression(e)
@@ -264,8 +308,11 @@ func (i *Interpreter) evalExpression(expr parser.Expression) (Object, error) {
 		return i.evalIndexExpression(e)
 	case *parser.DotExpression:
 		return i.evalDotExpression(e)
+	case *parser.FunctionLiteral:
+		return i.evalFunctionLiteral(e)
 	default:
-		return nil, errors.NewRuntimeError("Unknown expression type", 0, 0, "")
+		fmt.Printf("DEBUG: Unknown expression type: %T\n", e)
+		return nil, errors.NewRuntimeError(fmt.Sprintf("Unknown expression type: %T", e), 0, 0, "")
 	}
 }
 
@@ -317,11 +364,6 @@ func (i *Interpreter) evalMinusPrefixOperatorExpression(right Object) (Object, e
 
 // evalInfixExpression evaluates an infix expression
 func (i *Interpreter) evalInfixExpression(expr *parser.InfixExpression) (Object, error) {
-	// Special handling for short-circuit logical operators
-	if expr.Operator == "&&" || expr.Operator == "||" {
-		return i.evalLogicalExpression(expr)
-	}
-
 	left, err := i.evalExpression(expr.Left)
 	if err != nil {
 		return nil, err
@@ -337,6 +379,11 @@ func (i *Interpreter) evalInfixExpression(expr *parser.InfixExpression) (Object,
 		return i.evalIntegerInfixExpression(expr.Operator, left, right)
 	case left.Type() == "STRING" && right.Type() == "STRING":
 		return i.evalStringInfixExpression(expr.Operator, left, right)
+	// Support string concatenation with other types
+	case left.Type() == "STRING" && expr.Operator == "+":
+		return i.evalMixedStringConcatExpression(left, right, true)
+	case right.Type() == "STRING" && expr.Operator == "+":
+		return i.evalMixedStringConcatExpression(right, left, false)
 	case expr.Operator == "==":
 		return &Boolean{Value: left == right}, nil
 	case expr.Operator == "!=":
@@ -431,6 +478,10 @@ func (i *Interpreter) evalIntegerInfixExpression(operator string, left, right Ob
 		return &Boolean{Value: leftVal < rightVal}, nil
 	case ">":
 		return &Boolean{Value: leftVal > rightVal}, nil
+	case "<=":
+		return &Boolean{Value: leftVal <= rightVal}, nil
+	case ">=":
+		return &Boolean{Value: leftVal >= rightVal}, nil
 	case "==":
 		return &Boolean{Value: leftVal == rightVal}, nil
 	case "!=":
@@ -454,6 +505,56 @@ func (i *Interpreter) evalStringInfixExpression(operator string, left, right Obj
 		return &Boolean{Value: leftVal != rightVal}, nil
 	default:
 		return nil, errors.NewRuntimeError(fmt.Sprintf("Unknown operator: %s", operator), 0, 0, "")
+	}
+}
+
+// evalStringConcatExpression evaluates string concatenation with any other type
+func (i *Interpreter) evalStringConcatExpression(strObj Object, otherObj Object) (Object, error) {
+	strVal := strObj.(*String).Value
+	
+	// Convert the other object to a string
+	var otherVal string
+	switch other := otherObj.(type) {
+	case *Integer:
+		otherVal = fmt.Sprintf("%d", other.Value)
+	case *Boolean:
+		otherVal = fmt.Sprintf("%t", other.Value)
+	case *String:
+		otherVal = other.Value
+	case *Address:
+		otherVal = string(other.Value)
+	default:
+		// For any other type, use the Inspect method
+		otherVal = other.Inspect()
+	}
+	
+	return &String{Value: strVal + otherVal}, nil
+}
+
+// evalMixedStringConcatExpression handles both string+other and other+string cases
+func (i *Interpreter) evalMixedStringConcatExpression(strObj Object, otherObj Object, stringIsLeft bool) (Object, error) {
+	strVal := strObj.(*String).Value
+	
+	// Convert the other object to a string
+	var otherVal string
+	switch other := otherObj.(type) {
+	case *Integer:
+		otherVal = fmt.Sprintf("%d", other.Value)
+	case *Boolean:
+		otherVal = fmt.Sprintf("%t", other.Value)
+	case *String:
+		otherVal = other.Value
+	case *Address:
+		otherVal = string(other.Value)
+	default:
+		// For any other type, use the Inspect method
+		otherVal = other.Inspect()
+	}
+	
+	if stringIsLeft {
+		return &String{Value: strVal + otherVal}, nil
+	} else {
+		return &String{Value: otherVal + strVal}, nil
 	}
 }
 
@@ -487,8 +588,83 @@ func isTruthy(obj Object) bool {
 
 // evalCallExpression evaluates a call expression
 func (i *Interpreter) evalCallExpression(expr *parser.CallExpression) (Object, error) {
-	// For now, just return nil
-	return nil, errors.NewRuntimeError("Function calls not implemented yet", expr.Token.Line, expr.Token.Column, "")
+	// Evaluate the function expression to get the function object
+	function, err := i.evalExpression(expr.Function)
+	if err != nil {
+		return nil, err
+	}
+	
+	// Check if it's actually a function
+	fn, ok := function.(*Function)
+	if !ok {
+		return nil, errors.NewTypeError(
+			fmt.Sprintf("Not a function: %s", function.Type()),
+			expr.Token.Line,
+			expr.Token.Column,
+			"",
+		)
+	}
+	
+	// Evaluate the arguments
+	args, err := i.evalExpressions(expr.Arguments)
+	if err != nil {
+		return nil, err
+	}
+	
+	// Check if the number of arguments matches the number of parameters
+	if len(args) != len(fn.Parameters) {
+		return nil, errors.NewTypeError(
+			fmt.Sprintf("Wrong number of arguments: expected %d, got %d",
+				len(fn.Parameters), len(args)),
+			expr.Token.Line,
+			expr.Token.Column,
+			"",
+		)
+	}
+	
+	// Create a new environment for the function call
+	extendedEnv := NewEnclosedEnvironment(fn.Env)
+	
+	// Bind the arguments to the parameters
+	for i, param := range fn.Parameters {
+		extendedEnv.Set(param.Name.Value, args[i])
+	}
+	
+	// Save the current environment and set the function's environment
+	previousEnv := i.env
+	i.env = extendedEnv
+	
+	// Evaluate the function body
+	result, err := i.evalBlockStatement(fn.Body)
+	
+	// Restore the previous environment
+	i.env = previousEnv
+	
+	if err != nil {
+		return nil, err
+	}
+	
+	// Unwrap the return value if it's a return value
+	if returnValue, ok := result.(*ReturnValue); ok {
+		return returnValue.Value, nil
+	}
+	
+	return result, nil
+}
+
+// evalExpressions evaluates a list of expressions
+func (i *Interpreter) evalExpressions(exps []parser.Expression) ([]Object, error) {
+	var result []Object
+	
+	for _, exp := range exps {
+		evaluated, err := i.evalExpression(exp)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, evaluated)
+	}
+	
+	return result, nil
 }
 
 // evalIndexExpression evaluates an index expression
@@ -511,8 +687,26 @@ func (i *Interpreter) evalContractStatement(stmt *parser.ContractStatement) (Obj
 
 // evalFunctionStatement evaluates a function statement
 func (i *Interpreter) evalFunctionStatement(stmt *parser.FunctionStatement) (Object, error) {
-	// For now, just return nil
-	return nil, errors.NewRuntimeError("Function statements not implemented yet", stmt.Token.Line, stmt.Token.Column, "")
+	// Create a name for anonymous functions if necessary
+	name := ""
+	if stmt.Name != nil {
+		name = stmt.Name.Value
+	}
+	
+	function := &Function{
+		Parameters: stmt.Parameters,
+		Body:       stmt.Body,
+		ReturnType: stmt.ReturnType,
+		Env:        i.env,
+		Name:       name,
+	}
+	
+	// Store the function in the current environment if it has a name
+	if name != "" {
+		i.env.Set(name, function)
+	}
+	
+	return function, nil
 }
 
 // evalRequireStatement evaluates a require statement
@@ -554,4 +748,16 @@ func (i *Interpreter) evalEmitStatement(stmt *parser.EmitStatement) (Object, err
 	}
 
 	return nil, nil
+}
+
+// evalFunctionLiteral evaluates a function literal expression
+func (i *Interpreter) evalFunctionLiteral(fl *parser.FunctionLiteral) (Object, error) {
+	function := &Function{
+		Parameters: fl.Parameters,
+		Body:       fl.Body,
+		ReturnType: fl.ReturnType,
+		Env:        i.env, // Capture the current environment for closures
+	}
+	
+	return function, nil
 }
