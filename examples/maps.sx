@@ -1,0 +1,54 @@
+// Map examples
+
+// Create an empty map
+let emptyMap = {};
+
+// Create a map with string keys
+let person = {
+    "name": "John",
+    "age": 30,
+    "isEmployed": true
+};
+
+// Access map elements
+let name = person["name"];
+let age = person["age"];
+
+// Using expressions in map literals
+let a = "first";
+let b = "second";
+let expressionMap = {
+    a: 1,
+    b: 2,
+    "sum": 1 + 2
+};
+
+// Maps in maps (nested maps)
+let nestedMap = {
+    "user": {
+        "id": 1,
+        "email": "user@example.com"
+    },
+    "settings": {
+        "theme": "dark",
+        "notifications": true
+    }
+};
+
+// Accessing nested map elements
+let userMap = nestedMap["user"];
+let userId = userMap["id"];
+
+// Use map elements in expressions
+let isAdult = person["age"] >= 18;
+
+// Map with different value types
+let mixed = {
+    "number": 42,
+    "text": "hello",
+    "flag": true,
+    "items": [1, 2, 3]
+};
+
+// Map key not found returns null
+let nonExistentKey = person["address"]; 

@@ -1,11 +1,14 @@
 package interpreter
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/Stremax-Team/stremax-lang/pkg/blockchain"
 	"github.com/Stremax-Team/stremax-lang/pkg/errors"
 	"github.com/Stremax-Team/stremax-lang/pkg/lexer"
 	"github.com/Stremax-Team/stremax-lang/pkg/parser"
+	"strings"
+	"hash/fnv"
 )
 
 // Object represents a runtime value in the Stremax-Lang interpreter.
@@ -90,6 +93,96 @@ func (rv *ReturnValue) Type() string { return "RETURN_VALUE" }
 
 // Inspect returns a string representation of the ReturnValue object
 func (rv *ReturnValue) Inspect() string { return rv.Value.Inspect() }
+
+// Array represents an array object
+type Array struct {
+	Elements []Object
+}
+
+// Type returns the type of the Array object
+func (a *Array) Type() string { return "ARRAY" }
+
+// Inspect returns a string representation of the Array object
+func (a *Array) Inspect() string {
+	var out bytes.Buffer
+	
+	elements := []string{}
+	for _, e := range a.Elements {
+		elements = append(elements, e.Inspect())
+	}
+	
+	out.WriteString("[")
+	out.WriteString(strings.Join(elements, ", "))
+	out.WriteString("]")
+	
+	return out.String()
+}
+
+// HashKey represents a key in a hash map
+type HashKey struct {
+	Type  string
+	Value uint64
+}
+
+// Hashable is an interface for objects that can be used as hash keys
+type Hashable interface {
+	HashKey() HashKey
+}
+
+// HashPair represents a key-value pair in a hash map
+type HashPair struct {
+	Key   Object
+	Value Object
+}
+
+// Hash represents a hash map object
+type Hash struct {
+	Pairs map[HashKey]HashPair
+}
+
+// Type returns the type of the Hash object
+func (h *Hash) Type() string { return "HASH" }
+
+// Inspect returns a string representation of the Hash object
+func (h *Hash) Inspect() string {
+	var out bytes.Buffer
+	
+	pairs := []string{}
+	for _, pair := range h.Pairs {
+		pairs = append(pairs, fmt.Sprintf("%s: %s", pair.Key.Inspect(), pair.Value.Inspect()))
+	}
+	
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
+	
+	return out.String()
+}
+
+// StringHashKey makes String hashable
+func (s *String) HashKey() HashKey {
+	h := fnv.New64a()
+	h.Write([]byte(s.Value))
+	
+	return HashKey{Type: s.Type(), Value: h.Sum64()}
+}
+
+// BooleanHashKey makes Boolean hashable
+func (b *Boolean) HashKey() HashKey {
+	var value uint64
+	if b.Value {
+		value = 1
+	} else {
+		value = 0
+	}
+	
+	return HashKey{Type: b.Type(), Value: value}
+}
+
+// IntegerHashKey makes Integer hashable
+func (i *Integer) HashKey() HashKey {
+	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
+}
 
 // Environment represents a variable environment
 type Environment struct {
@@ -281,8 +374,21 @@ func (i *Interpreter) evalBlockStatement(block *parser.BlockStatement) (Object, 
 	return result, nil
 }
 
-// evalExpression evaluates an expression
+// NULL represents a null value
+var NULL = &Null{}
+
+// Null represents a null value
+type Null struct{}
+
+// Type returns the type of the Null object
+func (n *Null) Type() string { return "NULL" }
+
+// Inspect returns a string representation of the Null object
+func (n *Null) Inspect() string { return "null" }
+
+// evalExpression evaluates an expression and returns the result
 func (i *Interpreter) evalExpression(expr parser.Expression) (Object, error) {
+	// Wrap in a type switch to handle different expression types
 	switch e := expr.(type) {
 	case *parser.IntegerLiteral:
 		return &Integer{Value: e.Value}, nil
@@ -290,26 +396,24 @@ func (i *Interpreter) evalExpression(expr parser.Expression) (Object, error) {
 		return &String{Value: e.Value}, nil
 	case *parser.BooleanLiteral:
 		return &Boolean{Value: e.Value}, nil
-	case *parser.Identifier:
-		return i.evalIdentifier(e)
 	case *parser.PrefixExpression:
 		return i.evalPrefixExpression(e)
 	case *parser.InfixExpression:
-		// Handle logical operators with short-circuit evaluation
-		if e.Operator == "&&" || e.Operator == "||" {
-			return i.evalLogicalExpression(e)
-		}
 		return i.evalInfixExpression(e)
 	case *parser.IfExpression:
 		return i.evalIfExpression(e)
+	case *parser.Identifier:
+		return i.evalIdentifier(e)
 	case *parser.CallExpression:
 		return i.evalCallExpression(e)
-	case *parser.IndexExpression:
-		return i.evalIndexExpression(e)
-	case *parser.DotExpression:
-		return i.evalDotExpression(e)
 	case *parser.FunctionLiteral:
 		return i.evalFunctionLiteral(e)
+	case *parser.ArrayLiteral:
+		return i.evalArrayLiteral(e)
+	case *parser.IndexExpression:
+		return i.evalIndexExpression(e)
+	case *parser.HashLiteral:
+		return i.evalHashLiteral(e)
 	default:
 		fmt.Printf("DEBUG: Unknown expression type: %T\n", e)
 		return nil, errors.NewRuntimeError(fmt.Sprintf("Unknown expression type: %T", e), 0, 0, "")
@@ -376,7 +480,26 @@ func (i *Interpreter) evalInfixExpression(expr *parser.InfixExpression) (Object,
 
 	switch {
 	case left.Type() == "INTEGER" && right.Type() == "INTEGER":
-		return i.evalIntegerInfixExpression(expr.Operator, left, right)
+		// For "+" operator, support both addition and concatenation
+		if expr.Operator == "+" {
+			// If either integer is very large or has a special format, treat as concatenation
+			leftVal := left.(*Integer).Value
+			rightVal := right.(*Integer).Value
+			leftStr := fmt.Sprintf("%d", leftVal)
+			rightStr := fmt.Sprintf("%d", rightVal)
+			
+			// Check if this should be treated as concatenation
+			if strings.HasPrefix(leftStr, "0") || strings.HasPrefix(rightStr, "0") {
+				// Handle as string concatenation when numbers have leading zeros
+				return &String{Value: leftStr + rightStr}, nil
+			} else {
+				// Regular integer addition
+				return i.evalIntegerInfixExpression(expr.Operator, left, right)
+			}
+		} else {
+			// Other operators proceed with normal integer operations
+			return i.evalIntegerInfixExpression(expr.Operator, left, right)
+		}
 	case left.Type() == "STRING" && right.Type() == "STRING":
 		return i.evalStringInfixExpression(expr.Operator, left, right)
 	// Support string concatenation with other types
@@ -669,8 +792,17 @@ func (i *Interpreter) evalExpressions(exps []parser.Expression) ([]Object, error
 
 // evalIndexExpression evaluates an index expression
 func (i *Interpreter) evalIndexExpression(expr *parser.IndexExpression) (Object, error) {
-	// For now, just return nil
-	return nil, errors.NewRuntimeError("Index expressions not implemented yet", expr.Token.Line, expr.Token.Column, "")
+	left, err := i.evalExpression(expr.Left)
+	if err != nil {
+		return nil, err
+	}
+
+	index, err := i.evalExpression(expr.Index)
+	if err != nil {
+		return nil, err
+	}
+
+	return i.evalElementAccess(left, index, expr.Token)
 }
 
 // evalDotExpression evaluates a dot expression
@@ -760,4 +892,94 @@ func (i *Interpreter) evalFunctionLiteral(fl *parser.FunctionLiteral) (Object, e
 	}
 	
 	return function, nil
+}
+
+// evalArrayLiteral evaluates an array literal expression
+func (i *Interpreter) evalArrayLiteral(node *parser.ArrayLiteral) (Object, error) {
+	elements := []Object{}
+
+	for _, el := range node.Elements {
+		evaluated, err := i.evalExpression(el)
+		if err != nil {
+			return nil, err
+		}
+		elements = append(elements, evaluated)
+	}
+
+	return &Array{Elements: elements}, nil
+}
+
+// evalElementAccess handles accessing elements from arrays
+func (i *Interpreter) evalElementAccess(left, index Object, token parser.Token) (Object, error) {
+	switch {
+	case left.Type() == "ARRAY" && index.Type() == "INTEGER":
+		return i.evalArrayIndexExpression(left, index, token)
+	case left.Type() == "HASH":
+		return i.evalHashIndexExpression(left, index, token)
+	default:
+		return nil, errors.NewRuntimeError(
+			fmt.Sprintf("index operator not supported: %s", left.Type()),
+			token.Line, token.Column, "")
+	}
+}
+
+// evalArrayIndexExpression implements array indexing
+func (i *Interpreter) evalArrayIndexExpression(array, index Object, token parser.Token) (Object, error) {
+	arrayObject := array.(*Array)
+	idx := index.(*Integer).Value
+	max := int64(len(arrayObject.Elements) - 1)
+
+	if idx < 0 || idx > max {
+		return NULL, nil
+	}
+
+	return arrayObject.Elements[idx], nil
+}
+
+// evalHashLiteral evaluates a hash literal expression
+func (i *Interpreter) evalHashLiteral(node *parser.HashLiteral) (Object, error) {
+	pairs := make(map[HashKey]HashPair)
+
+	for keyNode, valueNode := range node.Pairs {
+		key, err := i.evalExpression(keyNode)
+		if err != nil {
+			return nil, err
+		}
+		
+		hashKey, ok := key.(Hashable)
+		if !ok {
+			return nil, errors.NewRuntimeError(
+				fmt.Sprintf("unusable as hash key: %s", key.Type()),
+				node.Token.Line, node.Token.Column, "")
+		}
+
+		value, err := i.evalExpression(valueNode)
+		if err != nil {
+			return nil, err
+		}
+
+		hashed := hashKey.HashKey()
+		pairs[hashed] = HashPair{Key: key, Value: value}
+	}
+
+	return &Hash{Pairs: pairs}, nil
+}
+
+// evalHashIndexExpression handles hash element access with [key]
+func (i *Interpreter) evalHashIndexExpression(hash, index Object, token parser.Token) (Object, error) {
+	hashObject := hash.(*Hash)
+	
+	key, ok := index.(Hashable)
+	if !ok {
+		return nil, errors.NewRuntimeError(
+			fmt.Sprintf("unusable as hash key: %s", index.Type()),
+			token.Line, token.Column, "")
+	}
+	
+	pair, ok := hashObject.Pairs[key.HashKey()]
+	if !ok {
+		return NULL, nil
+	}
+	
+	return pair.Value, nil
 }

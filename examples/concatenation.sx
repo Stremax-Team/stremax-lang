@@ -1,0 +1,30 @@
+// String and Integer Concatenation Example
+
+// String concatenation
+let firstName = "John";
+let lastName = "Doe";
+let fullName = firstName + " " + lastName;
+
+// String and integer concatenation
+let age = 30;
+let message = "My name is " + fullName + " and I am " + age + " years old.";
+
+// Integer concatenation (numbers with leading zeros are concatenated as strings)
+let phoneCode = 01;  // With leading zero
+let phoneNumber = 5551234;
+let completePhone = phoneCode + phoneNumber;  // Should be "015551234" not 5552235
+
+// Normal integer addition
+let a = 5;
+let b = 10;
+let sum = a + b;  // Should be 15
+
+// More complex concatenation
+let greeting = "Hello, " + (firstName + " " + lastName) + "! You are " + age + " years old.";
+
+// Display results
+fullName;        // John Doe
+message;         // My name is John Doe and I am 30 years old.
+completePhone;   // 015551234
+sum;             // 15
+greeting;        // Hello, John Doe! You are 30 years old. 

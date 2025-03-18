@@ -1,0 +1,85 @@
+// Collections Example - Arrays and Maps
+
+// ------ ARRAYS ------
+
+// Create arrays
+let numbers = [1, 2, 3, 4, 5];
+let names = ["Alice", "Bob", "Charlie"];
+let mixed = [1, "hello", true];
+let nested = [[1, 2], [3, 4]];
+let empty = [];
+
+// Access array elements
+let firstNumber = numbers[0];      // 1
+let secondName = names[1];         // "Bob"
+let nestedValue = nested[0][1];    // 2
+let outOfBounds = numbers[10];     // null
+
+// Array operations
+let sum = numbers[0] + numbers[1] + numbers[2];  // 6
+let greeting = "Hello, " + names[0] + "!";       // "Hello, Alice!"
+let combined = [numbers[0], names[0]];           // [1, "Alice"]
+
+// ------ MAPS ------
+
+// Create maps
+let person = {
+    "name": "John",
+    "age": 30,
+    "isEmployed": true
+};
+
+let config = {
+    "debug": false,
+    "maxItems": 100,
+    "tags": ["important", "new"]
+};
+
+let nested_map = {
+    "user": {
+        "id": 1,
+        "email": "user@example.com"
+    },
+    "settings": {
+        "theme": "dark"
+    }
+};
+
+let empty_map = {};
+
+// Access map elements
+let personName = person["name"];                 // "John"
+let maxItems = config["maxItems"];               // 100
+let firstTag = config["tags"][0];                // "important"
+let userEmail = nested_map["user"]["email"];     // "user@example.com"
+let nonExistent = person["address"];             // null
+
+// Map operations
+let isAdult = person["age"] >= 18;               // true
+let displayName = "Name: " + person["name"];     // "Name: John"
+
+// ------ MIXING ARRAYS AND MAPS ------
+
+// Array of maps
+let users = [
+    {"id": 1, "name": "Alice"},
+    {"id": 2, "name": "Bob"},
+    {"id": 3, "name": "Charlie"}
+];
+
+// Map with array values
+let data = {
+    "ids": [101, 102, 103],
+    "scores": [85, 90, 95]
+};
+
+// Accessing mixed structures
+let secondUser = users[1];                 // {"id": 2, "name": "Bob"}
+let secondUserName = users[1]["name"];     // "Bob"
+let firstScore = data["scores"][0];        // 85
+
+// Using expressions for keys and indices
+let i = 1;
+let userAtIndex = users[i];                // {"id": 2, "name": "Bob"}
+let key = "name";
+let userName = person[key];                // "John" 

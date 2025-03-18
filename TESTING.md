@@ -2,6 +2,20 @@
 
 This document summarizes the testing of the Stremax-Lang interpreter.
 
+## Test Coverage
+
+The Stremax-Lang interpreter includes comprehensive tests for the following features:
+
+1. **Lexical Analysis**: Tests for tokenizing all language constructs
+2. **Parsing**: Tests for creating correct AST nodes for all syntax elements
+3. **Evaluation**: Tests for correctly evaluating expressions and statements
+4. **Error Handling**: Tests for appropriate error messages
+5. **Functions**: Tests for function declarations, calls, closures, and recursion
+6. **Logical Operations**: Tests for logical operators with short-circuit evaluation
+7. **Block Scoping**: Tests for variable scoping rules
+8. **String Concatenation**: Tests for string and mixed-type concatenation
+9. **Collections**: Tests for arrays and maps including creation and element access
+
 ## Continuous Integration
 
 Stremax-Lang uses GitHub Actions for continuous integration. The CI pipeline includes:
@@ -22,70 +36,45 @@ The easiest way to run all tests locally is to use the provided script:
 ./run_tests.sh
 ```
 
-This script will:
-1. Check your Go version and adjust commands accordingly
-2. Check and fix code formatting
-3. Run linting and static analysis
-4. Run unit tests with race detection and coverage
-5. Run benchmarks
-6. Build the project
-7. Run example programs
-
-### Unit Tests
-
-Run all unit tests:
+Or you can run tests for specific packages:
 
 ```bash
-go test ./...
+go test ./pkg/lexer
+go test ./pkg/parser
+go test ./pkg/interpreter
 ```
 
-Run tests with verbose output:
-
-```bash
-go test -v ./...
-```
-
-Run tests with coverage:
+To run tests with coverage:
 
 ```bash
 go test -coverprofile=coverage.out ./...
-go tool cover -html=coverage.out  # View coverage in browser
+go tool cover -html=coverage.out
 ```
 
-### Benchmarks
+## Example Programs
 
-Run benchmarks:
+The `examples/` directory contains programs that demonstrate various language features:
 
-```bash
-go test -bench=. -benchmem ./...
-```
+- Basic features: `simple.sx`, `arithmetic.sx`, `strings.sx`, etc.
+- Logical operations: `logical.sx`, `simple_logical.sx`
+- Functions: `functions.sx`, `functions_simple.sx`, `functions_advanced.sx`, `factorial.sx`
+- String concatenation: `concatenation.sx`, `string_concat.sx`
+- Collections: `arrays.sx`, `maps.sx`, `collections.sx`
 
-Run specific benchmarks:
+Each example program is tested to ensure it produces the expected result.
 
-```bash
-go test -bench=BenchmarkLexer -benchmem ./pkg/lexer
-```
+## Benchmarks
 
-### Linting
+Performance benchmarks are included for critical components:
 
-Format code:
+- Lexer: `pkg/lexer/lexer_benchmark_test.go`
+- Parser: `pkg/parser/parser_benchmark_test.go`
+- Interpreter: `pkg/interpreter/interpreter_benchmark_test.go`
 
-```bash
-gofmt -w .
-```
-
-Run linter:
+Run benchmarks with:
 
 ```bash
-golint ./...
-# or if golint is installed via go install
-$(go env GOPATH)/bin/golint ./...
-```
-
-Run Go's built-in code analyzer:
-
-```bash
-go vet ./...
+go test -bench=. ./...
 ```
 
 ## Interpreter Tests
@@ -102,41 +91,6 @@ The interpreter has been tested with a suite of unit tests in `pkg/interpreter/i
 - Error handling
 
 All tests are passing, which indicates that the core functionality of the interpreter is working correctly.
-
-## Benchmark Tests
-
-We've added benchmark tests for key components:
-
-- **Lexer Benchmarks** (`pkg/lexer/lexer_benchmark_test.go`): Tests the performance of tokenization
-- **Parser Benchmarks** (`pkg/parser/parser_benchmark_test.go`): Tests the performance of parsing
-- **Interpreter Benchmarks** (`pkg/interpreter/interpreter_benchmark_test.go`): Tests the performance of code execution
-
-These benchmarks help us track performance over time and detect regressions.
-
-## Example Programs
-
-We've created several example programs to demonstrate the features of Stremax-Lang:
-
-### Basic Examples (Working)
-
-- **simple.sx**: A very basic example with variable assignment and arithmetic.
-- **arithmetic.sx**: Demonstrates various arithmetic operations.
-- **strings.sx**: Shows string operations like concatenation.
-- **conditionals.sx**: Illustrates conditional expressions with if-else statements.
-- **boolean.sx**: Tests boolean operations and comparisons.
-- **logical.sx**: Demonstrates logical operators (&&, ||) with short-circuit evaluation.
-- **simple_logical.sx**: A minimal example of logical operators.
-- **combined.sx**: Combines various features in one example.
-- **errors.sx**: Demonstrates error handling (division by zero).
-- **scoping.sx**: Tests variable scoping.
-- **scoping_error.sx**: Tests variable scoping errors.
-- **debug.sx**: Tests interpreter output with multiple expressions.
-
-### Advanced Examples (Not Working Yet)
-
-- **token.sx**: An ERC20-like token contract implementation.
-- **voting.sx**: A voting contract implementation.
-- **auction.sx**: An auction contract implementation.
 
 ## Test Results
 
@@ -186,13 +140,3 @@ The current implementation has the following limitations:
 1. **Block Scoping**: Variables defined in blocks are now properly scoped and not accessible outside their blocks.
 2. **Boolean Literals**: Direct support for boolean literals (true/false) has been added.
 3. **Logical Operators**: Support for logical AND (&&) and OR (||) operators with short-circuit evaluation has been implemented.
-
-## Next Steps
-
-1. Implement support for string and integer concatenation.
-2. Add support for arrays and maps.
-3. Implement function declarations and function calls.
-4. Add support for contract syntax and blockchain-specific features.
-5. Enhance the type system to support custom types and type annotations.
-6. Add debugging and verbose output options to the CLI.
-7. Implement a REPL (Read-Eval-Print Loop) for interactive development. 

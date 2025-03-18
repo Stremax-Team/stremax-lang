@@ -1,0 +1,35 @@
+// Array examples
+
+// Create an empty array
+let emptyArray = [];
+
+// Create an array with integers
+let numbers = [1, 2, 3, 4, 5];
+
+// Create an array with mixed types
+let mixed = [1, "hello", true];
+
+// Access array elements
+let firstNumber = numbers[0];
+
+// Using expressions in array literals
+let a = 1;
+let b = 2;
+let expressionArray = [a+b, a*b, a-b, 10];
+
+// Arrays in arrays (nested arrays)
+let nested = [[1, 2], [3, 4], [5, 6]];
+
+// Store intermediate value instead of using double index
+let nestedArray = nested[1];
+let nestedValue = nestedArray[0]; // Should be 3
+
+// Use array elements in expressions
+let sum = numbers[0] + numbers[1] + numbers[2];
+
+// Assign to variables from arrays
+let x = numbers[0];
+let y = numbers[1];
+
+// Array index out of bounds returns null
+let outOfBounds = numbers[10]; 

@@ -594,33 +594,6 @@ func (ae *AssignExpression) String() string {
 	return out.String()
 }
 
-// IndexExpression represents an index expression (array[index])
-type IndexExpression struct {
-	Token Token // the [ token
-	Left  Expression
-	Index Expression
-}
-
-func (ie *IndexExpression) expressionNode() {}
-
-// TokenLiteral returns the literal of the token associated with the node
-func (ie *IndexExpression) TokenLiteral() string {
-	return ie.Token.Literal
-}
-
-// String returns a string representation of the index expression
-func (ie *IndexExpression) String() string {
-	var out bytes.Buffer
-
-	out.WriteString("(")
-	out.WriteString(ie.Left.String())
-	out.WriteString("[")
-	out.WriteString(ie.Index.String())
-	out.WriteString("])")
-
-	return out.String()
-}
-
 // CallExpression represents a function call expression
 type CallExpression struct {
 	Token     Token // the ( token
@@ -730,7 +703,15 @@ func (fl *FunctionLiteral) String() string {
 
 	params := []string{}
 	for _, p := range fl.Parameters {
-		params = append(params, p.String())
+		if p != nil {
+			if p.Name != nil {
+				if p.Type != nil {
+					params = append(params, p.String())
+				} else {
+					params = append(params, p.Name.Value)
+				}
+			}
+		}
 	}
 
 	out.WriteString(fl.TokenLiteral())
@@ -744,7 +725,91 @@ func (fl *FunctionLiteral) String() string {
 	}
 	
 	out.WriteString(" ")
-	out.WriteString(fl.Body.String())
+	
+	if fl.Body != nil {
+		out.WriteString(fl.Body.String())
+	} else {
+		out.WriteString("{}")
+	}
+
+	return out.String()
+}
+
+// ArrayLiteral represents an array literal
+type ArrayLiteral struct {
+	Token    Token // the '[' token
+	Elements []Expression
+}
+
+func (al *ArrayLiteral) expressionNode() {}
+
+func (al *ArrayLiteral) TokenLiteral() string {
+	return al.Token.Literal
+}
+
+func (al *ArrayLiteral) String() string {
+	var out bytes.Buffer
+
+	elements := []string{}
+	for _, el := range al.Elements {
+		elements = append(elements, el.String())
+	}
+
+	out.WriteString("[")
+	out.WriteString(strings.Join(elements, ", "))
+	out.WriteString("]")
+
+	return out.String()
+}
+
+// IndexExpression represents an index expression (e.g., array[index])
+type IndexExpression struct {
+	Token Token      // The [ token
+	Left  Expression // The expression being indexed
+	Index Expression // The index expression
+}
+
+func (ie *IndexExpression) expressionNode() {}
+
+func (ie *IndexExpression) TokenLiteral() string {
+	return ie.Token.Literal
+}
+
+func (ie *IndexExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(ie.Left.String())
+	out.WriteString("[")
+	out.WriteString(ie.Index.String())
+	out.WriteString("])")
+
+	return out.String()
+}
+
+// HashLiteral represents a map/dictionary/hash literal
+type HashLiteral struct {
+	Token Token // the '{' token
+	Pairs map[Expression]Expression
+}
+
+func (hl *HashLiteral) expressionNode() {}
+
+func (hl *HashLiteral) TokenLiteral() string {
+	return hl.Token.Literal
+}
+
+func (hl *HashLiteral) String() string {
+	var out bytes.Buffer
+
+	pairs := []string{}
+	for key, value := range hl.Pairs {
+		pairs = append(pairs, key.String()+": "+value.String())
+	}
+
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
 
 	return out.String()
 }

@@ -91,6 +91,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(lexer.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(lexer.IF, p.parseIfExpression)
 	p.registerPrefix(lexer.FUNCTION, p.parseFunctionLiteral)
+	p.registerPrefix(lexer.LBRACKET, p.parseArrayLiteral)
+	p.registerPrefix(lexer.LBRACE, p.parseHashLiteral)
 
 	// Register infix parse functions
 	p.infixParseFns = make(map[lexer.TokenType]infixParseFn)
@@ -592,7 +594,10 @@ func (p *Parser) parseCallExpression(function Expression) Expression {
 
 // parseIndexExpression parses an index expression
 func (p *Parser) parseIndexExpression(left Expression) Expression {
-	exp := &IndexExpression{Token: p.curToken, Left: left}
+	exp := &IndexExpression{
+		Token: p.curToken,
+		Left:  left,
+	}
 
 	p.nextToken()
 	exp.Index = p.parseExpression(LOWEST)
@@ -604,7 +609,7 @@ func (p *Parser) parseIndexExpression(left Expression) Expression {
 	return exp
 }
 
-// parseExpressionList parses a list of expressions
+// parseExpressionList parses a list of expressions separated by commas
 func (p *Parser) parseExpressionList(end lexer.TokenType) []Expression {
 	list := []Expression{}
 
@@ -859,4 +864,56 @@ func (p *Parser) parseFunctionLiteral() Expression {
 	lit.Body = p.parseBlockStatement()
 
 	return lit
+}
+
+// parseArrayLiteral parses an array literal (e.g., [1, 2, 3])
+func (p *Parser) parseArrayLiteral() Expression {
+	array := &ArrayLiteral{Token: p.curToken}
+	array.Elements = p.parseExpressionList(lexer.RBRACKET)
+	return array
+}
+
+// parseHashLiteral parses a hash literal (e.g., {key1: value1, key2: value2})
+func (p *Parser) parseHashLiteral() Expression {
+	hash := &HashLiteral{
+		Token: p.curToken,
+		Pairs: make(map[Expression]Expression),
+	}
+
+	if p.peekTokenIs(lexer.RBRACE) {
+		p.nextToken()
+		return hash
+	}
+
+	p.nextToken()
+	key := p.parseExpression(LOWEST)
+
+	if !p.expectPeek(lexer.COLON) {
+		return nil
+	}
+
+	p.nextToken()
+	value := p.parseExpression(LOWEST)
+	hash.Pairs[key] = value
+
+	for p.peekTokenIs(lexer.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		
+		key := p.parseExpression(LOWEST)
+		
+		if !p.expectPeek(lexer.COLON) {
+			return nil
+		}
+		
+		p.nextToken()
+		value := p.parseExpression(LOWEST)
+		hash.Pairs[key] = value
+	}
+
+	if !p.expectPeek(lexer.RBRACE) {
+		return nil
+	}
+
+	return hash
 }

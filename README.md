@@ -33,6 +33,9 @@ Stremax-Lang is a simple programming language designed specifically for blockcha
 - ✅ Boolean Literals: Direct support for boolean literals (true/false)
 - ✅ Logical Operators: Support for logical AND (&&) and OR (||) with short-circuit evaluation
 - ✅ Functions: Support for function declarations, calls, closures, and recursion
+- ✅ String/Integer Concatenation: Enhanced support for string concatenation with different types
+- ✅ Arrays: Support for array literals, array access, and nested arrays
+- ✅ Maps: Support for map/hash/dictionary literals with string, integer, or boolean keys
 
 ## Project Structure
 
